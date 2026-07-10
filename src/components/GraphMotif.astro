@@ -1,0 +1,64 @@
+---
+/**
+ * GraphMotif — ambient section decoration.
+ *
+ * A subtle venation-graph: matcha lines fan out from a midrib to small
+ * matcha nodes, with a single violet node standing in for the "one
+ * dependency that matters" accent used across the brand's video assets.
+ *
+ * Purely decorative — hidden from assistive tech.
+ */
+interface Props {
+  class?: string;
+  width?: number;
+  height?: number;
+  opacity?: number;
+}
+
+const { class: className = '', width = 420, height = 360, opacity = 0.35 } = Astro.props;
+---
+
+<svg
+  class:list={['graph-motif', className]}
+  viewBox="0 0 420 360"
+  width={width}
+  height={height}
+  fill="none"
+  style={`opacity: ${opacity}`}
+  aria-hidden="true"
+  focusable="false"
+>
+  <!-- midrib -->
+  <path d="M40 320 C 120 260 160 220 210 180 C 260 140 300 90 360 40" stroke="#5FB88A" stroke-width="2" stroke-linecap="round" opacity="0.7"></path>
+
+  <!-- branch veins -->
+  <g stroke="#5FB88A" stroke-width="1.5" stroke-linecap="round" opacity="0.55">
+    <path d="M90 288 Q 60 268 30 264"></path>
+    <path d="M130 254 Q 150 220 140 190"></path>
+    <path d="M180 210 Q 210 200 232 176"></path>
+    <path d="M235 165 Q 250 130 240 100"></path>
+    <path d="M285 118 Q 320 112 340 90"></path>
+    <path d="M310 95 Q 300 65 312 40"></path>
+  </g>
+
+  <!-- matcha nodes -->
+  <g fill="#5FB88A">
+    <circle cx="40" cy="320" r="5"></circle>
+    <circle cx="30" cy="264" r="4"></circle>
+    <circle cx="140" cy="190" r="4"></circle>
+    <circle cx="232" cy="176" r="4"></circle>
+    <circle cx="240" cy="100" r="4"></circle>
+    <circle cx="340" cy="90" r="4"></circle>
+    <circle cx="360" cy="40" r="5"></circle>
+  </g>
+
+  <!-- the one violet node -->
+  <circle cx="312" cy="40" r="6" fill="#7C6CF0"></circle>
+</svg>
+
+<style>
+  .graph-motif {
+    display: block;
+    pointer-events: none;
+  }
+</style>
