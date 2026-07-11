@@ -1,0 +1,39 @@
+---
+title: "Why I rebuilt my framework from scratch"
+description: "I built a decorator framework on Express and Inversify. Then the foundation kept moving under me. So I rebuilt the idea from zero — as a graph."
+pubDate: 2026-07-10
+author: "Diego Reséndez"
+tags: ["green-tea", "story", "architecture"]
+---
+
+A few years ago I built a framework called Expressive Tea. Decorators for routes, dependency injection wired through Inversify, all of it sitting on top of Express. It worked. I shipped real applications on it, in production, and it held up.
+
+For a while, that was enough.
+
+Then the ground under it started to move.
+
+Express 5 arrived, and migrating meant chasing the base framework and every breaking change it pushed into my chain. Routing semantics shifted, error handling shifted, and I had to follow along whether I wanted to or not. That's the deal you sign when your framework lives on top of another framework: you don't just inherit its strengths, you inherit its churn. Every decision Express made became a decision I had to react to.
+
+Around the same time, Inversify hit me with a harder problem. Version 6 was hard-deprecated — no more development on that line — and the jump to v7 forced a real refactor, not a patch. The dependency-injection layer, the thing my entire programming model was built around, had been abandoned out from under me. I wasn't choosing to change it. I was being told to.
+
+Underneath those two big shocks were smaller ones, the kind you stop noticing because you've been living with them so long. Middleware ordering was a permanent chore — get two middlewares in the wrong sequence and you'd find out in production, not before. Keeping the types honest about that order got complicated fast. The decorators, which were supposed to be the elegant part, had grown chaotic over time, layering metadata on metadata. And real-time — sockets, server-sent events — was never really part of the framework. It was a bolt-on package you wired in yourself and hoped it played nice with everything else.
+
+None of these were fatal on their own. Together, they told me something I didn't want to admit: I wasn't building my framework anymore. I was maintaining someone else's foundation, and doing it forever, one breaking change at a time.
+
+So I stopped patching and started over. From zero. Everything in-house.
+
+That's Green Tea.
+
+The core idea is simple to say and took a long time to get right: the request pipeline is an explicit dependency graph, not a mutable middleware chain. You don't push handlers onto a stack and hope the order holds. You declare what each step needs — `@needs('user')`, say — and the framework computes the order for you. There's no chain to get wrong, because there's no chain.
+
+Real-time isn't bolted on either. It's one primitive: return an `AsyncIterable` and you have a stream, whether that stream is a WebSocket, an SSE connection, or something else entirely. One shape, one mental model, no separate package to reconcile with the rest of the framework.
+
+And because none of it depends on Express or Node's http module specifically, it runs on Node, on Deno, on Bun, and on the edge — built on web standards instead of one runtime's particular APIs. One runtime dependency, total. Not a supply chain, one dependency.
+
+Here's the part I actually care about most. "Graph" isn't a marketing word here — it's the mechanism. You compose an application by asking for the highest-level thing you need, and its dependencies resolve transitively underneath it. You don't assemble the chain by hand and hope you got the order right. You state what you want, and the graph figures out what that requires. That's a property a chain-based framework structurally cannot show you, no matter how well-organized the chain is, because a chain only ever knows what came before it, not what a step actually needs.
+
+I want to be honest about where this stands. Green Tea is in beta. It doesn't have a decade of ecosystem behind it, no giant plugin registry, no ten years of Stack Overflow answers. What it has is a model that doesn't fight you, and ergonomics I stopped compromising on.
+
+If you've ever migrated a major version and spent your week reading someone else's changelog instead of writing your own code — if you're tired of maintaining someone else's foundation — come try it.
+
+That's the tea. 🍵
