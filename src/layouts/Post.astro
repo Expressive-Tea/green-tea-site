@@ -14,7 +14,12 @@ interface Props {
 
 const { title, description, pubDate, updatedDate, author, tags, heroImage, body } = Astro.props;
 
-const dateFormat = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
 
 const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
 const readingTime = Math.max(1, Math.round(wordCount / 200));
