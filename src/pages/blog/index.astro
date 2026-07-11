@@ -1,0 +1,99 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const title = 'Blog — Green Tea.';
+const description = 'Notes on building a zen, opinionated, type-safe HTTP framework.';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const dateFormat = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+---
+
+<Base title={title} description={description}>
+  <section class="section">
+    <div class="wrap">
+      <p class="kicker">Blog</p>
+      <h1>From the garden</h1>
+
+      {
+        posts.length === 0 ? (
+          <p class="empty-state">No posts yet.</p>
+        ) : (
+          <ul class="post-list">
+            {posts.map((post) => (
+              <li class="post-card">
+                <h2>
+                  <a href={`/blog/${post.id}/`}>{post.data.title}</a>
+                </h2>
+                <p class="post-card-meta">
+                  <time datetime={post.data.pubDate.toISOString()}>{dateFormat.format(post.data.pubDate)}</time>
+                </p>
+                <p class="post-card-description">{post.data.description}</p>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <p class="post-card-tags">
+                    {post.data.tags.map((tag) => (
+                      <span class="tag">{tag}</span>
+                    ))}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</Base>
+
+<style>
+  .empty-state {
+    color: var(--dim);
+    font-size: 1.1rem;
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    max-width: 70ch;
+  }
+
+  .post-card h2 {
+    margin-bottom: 0.3em;
+  }
+
+  .post-card-meta {
+    color: var(--dim);
+    font-size: 0.9rem;
+    margin: 0 0 0.6em;
+  }
+
+  .post-card-description {
+    margin: 0 0 0.6em;
+  }
+
+  .post-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 0;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--matcha);
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 0.25em 0.6em;
+  }
+</style>

@@ -1,0 +1,99 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  author: string;
+  tags?: string[];
+  heroImage?: string;
+  body: string;
+}
+
+const { title, description, pubDate, updatedDate, author, tags, heroImage, body } = Astro.props;
+
+const dateFormat = new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
+const readingTime = Math.max(1, Math.round(wordCount / 200));
+---
+
+<Base title={`${title} — Green Tea. Blog`} description={description} image={heroImage}>
+  <article class="post section">
+    <div class="wrap prose">
+      <p class="post-nav"><a href="/blog/">← Back to the blog</a></p>
+      <h1>{title}</h1>
+      <p class="post-meta">
+        <time datetime={pubDate.toISOString()}>{dateFormat.format(pubDate)}</time>
+        <span aria-hidden="true"> · </span>
+        {author}
+        <span aria-hidden="true"> · </span>
+        {readingTime} min read
+        {
+          updatedDate && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>Updated {dateFormat.format(updatedDate)}</span>
+            </>
+          )
+        }
+      </p>
+      {tags && tags.length > 0 && (
+        <p class="post-tags">
+          {tags.map((tag) => <span class="tag">{tag}</span>)}
+        </p>
+      )}
+      <div class="post-body">
+        <slot />
+      </div>
+      <p class="post-back"><a href="/blog/">← Back to the blog</a></p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .post-nav {
+    font-size: 0.9rem;
+    margin: 0 0 1.5em;
+  }
+
+  .post-nav a {
+    color: var(--dim);
+  }
+
+  .post-nav a:hover,
+  .post-nav a:focus-visible {
+    color: var(--matcha);
+  }
+
+  .post-meta {
+    color: var(--dim);
+    font-size: 0.95rem;
+    margin: 0 0 1.5em;
+  }
+
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em;
+    margin: 0 0 1.5em;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--matcha);
+    background: var(--panel);
+    border-radius: 6px;
+    padding: 0.25em 0.6em;
+  }
+
+  .post-back {
+    margin-top: 3em;
+  }
+</style>
