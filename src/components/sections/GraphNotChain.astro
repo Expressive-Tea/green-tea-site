@@ -1,0 +1,115 @@
+---
+import GraphMotif from '../GraphMotif.astro';
+---
+
+<section class="graph-idea section--panel">
+  <GraphMotif class="graph-idea__motif" width={520} height={440} opacity={0.14} />
+
+  <div class="wrap graph-idea__inner">
+    <p class="kicker">The idea</p>
+    <h2>A graph, not a chain.</h2>
+
+    <p class="graph-idea__body">
+      Express-style frameworks make ordering your job — what runs here, what runs there, where you wire it. Green
+      Tea inverts it. You ask for the highest-level thing you need, and its dependencies resolve transitively.
+    </p>
+
+    <ul class="graph-idea__examples">
+      <li>
+        Need an ACL check on a user? The ACL is a step that itself needs the user. Ask for the ACL — the user is
+        pulled in for you.
+      </li>
+      <li>Add a <code>friends</code> provider, then ask for <code>friends</code> — and the user arrives with the friend list.</li>
+    </ul>
+
+    <p class="graph-idea__punch">
+      This is pure composition. No other framework shows it, because no one else has the graph.
+    </p>
+  </div>
+</section>
+
+<style>
+  .graph-idea {
+    position: relative;
+    overflow: hidden;
+  }
+
+  :global(.graph-idea__motif) {
+    position: absolute;
+    top: 50%;
+    right: -4%;
+    transform: translateY(-50%);
+    width: min(520px, 55vw);
+    height: auto;
+    pointer-events: none;
+  }
+
+  .graph-idea__inner {
+    position: relative;
+    max-width: 62ch;
+  }
+
+  .graph-idea__inner h2 {
+    max-width: 16ch;
+  }
+
+  .graph-idea__body {
+    color: var(--dim);
+    font-size: 1.1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .graph-idea__examples {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .graph-idea__examples li {
+    position: relative;
+    padding-left: 1.5rem;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  .graph-idea__examples li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--matcha);
+  }
+
+  .graph-idea__examples code {
+    background: var(--base);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+
+  .graph-idea__punch {
+    margin: 0;
+    padding: 1.25rem 1.5rem;
+    border-left: 3px solid var(--violet);
+    background: color-mix(in srgb, var(--violet) 8%, transparent);
+    border-radius: 0 8px 8px 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  @media (max-width: 900px) {
+    :global(.graph-idea__motif) {
+      display: none;
+    }
+  }
+</style>

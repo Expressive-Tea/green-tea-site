@@ -134,4 +134,71 @@ a:focus-visible {
 
 section {
   padding-block: clamp(3rem, 8vw, 6rem);
+  overflow-x: clip;
+}
+
+/* Shared marketing primitives — used across landing sections */
+.section--panel {
+  background: var(--panel);
+}
+
+.kicker {
+  display: inline-block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--matcha);
+  margin: 0 0 0.85em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.7em 1.4em;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  line-height: 1.2;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn:hover,
+.btn:focus-visible {
+  text-decoration: none;
+}
+
+.btn--primary {
+  background: var(--matcha);
+  color: var(--base);
+}
+
+.btn--primary:hover,
+.btn--primary:focus-visible {
+  background: var(--matcha-deep);
+  color: var(--base);
+}
+
+.btn--ghost {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--dim) 45%, transparent);
+  color: var(--ink);
+}
+
+.btn--ghost:hover,
+.btn--ghost:focus-visible {
+  border-color: var(--matcha);
+  color: var(--matcha);
+}
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
 }

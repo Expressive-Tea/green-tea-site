@@ -1,0 +1,86 @@
+---
+const cards = [
+  { title: 'Secure by default', body: 'Hardening headers, native TLS, CORS done right.' },
+  {
+    title: 'Real validation',
+    body: 'Standard Schema; bring zod, valibot, or arktype. The core stays dependency-free.',
+  },
+  { title: 'OpenAPI 3.1', body: 'Projected from the same graph. No extra decorators.' },
+  { title: 'See the graph', body: 'Interactive, served by your app. Not behind a paywall.' },
+  { title: 'Loud boot', body: 'A missing dependency fails at startup, not in production.' },
+  { title: 'One dependency', body: "No Express, no Inversify. Maintenance is the framework's job, not yours." },
+];
+---
+
+<section class="batteries">
+  <div class="wrap">
+    <div class="batteries__head">
+      <p class="kicker">Batteries, calm by design</p>
+      <h2>Serious defaults. Zero ceremony.</h2>
+    </div>
+
+    <ul class="batteries__grid">
+      {
+        cards.map((card) => (
+          <li class="batteries__card">
+            <h3>{card.title}</h3>
+            <p>{card.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .batteries__head {
+    max-width: 52ch;
+    margin: 0 auto 3rem;
+    text-align: center;
+  }
+
+  .batteries__head h2 {
+    margin-bottom: 0;
+  }
+
+  .batteries__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .batteries__card {
+    padding: 1.75rem;
+    background: var(--panel);
+    border: 1px solid color-mix(in srgb, var(--dim) 18%, transparent);
+    border-radius: 12px;
+  }
+
+  .batteries__card h3 {
+    color: var(--matcha);
+    font-size: 1.05rem;
+    margin-bottom: 0.5em;
+  }
+
+  .batteries__card p {
+    margin: 0;
+    color: var(--dim);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 860px) {
+    .batteries__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .batteries__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

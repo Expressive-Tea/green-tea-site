@@ -1,0 +1,77 @@
+---
+import { Code } from 'astro:components';
+
+const snippet = `import { createApp, Provider, Step, Route, Get, Module, needs } from '@green-tea/core';
+
+@Provider({ provides: 'db' })
+class Database {
+  provide() { return { db: connect() }; }
+}
+
+@Step({ provides: 'user', needs: ['db', 'req'] })
+class Authenticate {
+  run(ctx) { return { user: ctx.db.find(ctx.req.headers['x-token']) }; }
+}
+
+@Route('/me')
+class MeController {
+  @Get('/')
+  me(@needs('user') user) {
+    return user;              // ask for \`user\` — the graph wires db + auth for you
+  }
+}`;
+---
+
+<section class="see-it section--panel">
+  <div class="wrap see-it__inner">
+    <div class="see-it__head">
+      <p class="kicker">See it</p>
+      <h2>The whole model, in one screen.</h2>
+    </div>
+
+    <div class="see-it__code">
+      <Code code={snippet} lang="ts" theme="github-dark" />
+    </div>
+
+    <p class="see-it__caption">Declare what you need. The framework figures out the order.</p>
+  </div>
+</section>
+
+<style>
+  .see-it__inner {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  .see-it__head {
+    max-width: 52ch;
+    margin: 0 auto 2.25rem;
+    text-align: center;
+  }
+
+  .see-it__head h2 {
+    margin-bottom: 0;
+  }
+
+  .see-it__code {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--dim) 20%, transparent);
+  }
+
+  .see-it__code :global(pre) {
+    margin: 0;
+    padding: 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .see-it__caption {
+    margin: 1.5rem 0 0;
+    text-align: center;
+    color: var(--dim);
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+</style>

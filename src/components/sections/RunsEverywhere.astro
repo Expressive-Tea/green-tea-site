@@ -1,0 +1,71 @@
+---
+const chips = ['app.listen(port)', 'serveDeno(app)', 'serveBun(app)', 'edgeHandler(app)'];
+---
+
+<section class="runs">
+  <div class="wrap runs__inner">
+    <p class="kicker">Runtime-agnostic</p>
+    <h2>Write it once. Run it everywhere.</h2>
+
+    <p class="runs__body">
+      Node, Deno, Bun — and the edge. The same <code>src/</code> runs on all of them; the only line that changes is
+      how you serve it.
+    </p>
+
+    <ul class="runs__chips">
+      {chips.map((chip) => <li><code>{chip}</code></li>)}
+    </ul>
+
+    <p class="runs__micro">Built on web standards. Not hostage to a runtime's fate.</p>
+  </div>
+</section>
+
+<style>
+  .runs__inner {
+    max-width: 66ch;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .runs__body {
+    color: var(--dim);
+    font-size: 1.1rem;
+    margin: 0 auto 2.25rem;
+    max-width: 52ch;
+  }
+
+  .runs__body code {
+    background: var(--panel);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+
+  .runs__chips {
+    list-style: none;
+    margin: 0 0 1.75rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .runs__chips code {
+    display: inline-block;
+    background: var(--panel);
+    border: 1px solid color-mix(in srgb, var(--dim) 30%, transparent);
+    border-radius: 999px;
+    padding: 0.55em 1.1em;
+    font-size: 0.9rem;
+    color: var(--matcha);
+  }
+
+  .runs__micro {
+    margin: 0;
+    color: var(--dim);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+</style>

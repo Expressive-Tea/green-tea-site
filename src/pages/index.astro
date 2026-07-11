@@ -1,7 +1,24 @@
 ---
 import Base from '../layouts/Base.astro';
+import Hero from '../components/sections/Hero.astro';
+import GraphNotChain from '../components/sections/GraphNotChain.astro';
+import RunsEverywhere from '../components/sections/RunsEverywhere.astro';
+import RealTime from '../components/sections/RealTime.astro';
+import Batteries from '../components/sections/Batteries.astro';
+import SeeIt from '../components/sections/SeeIt.astro';
+import HonestBeta from '../components/sections/HonestBeta.astro';
+
+const title = 'Green Tea. — A zen, opinionated, type-safe framework';
+const description =
+  'Your API is a graph, not a middleware chain. Declare what each step needs and Green Tea computes the order — one runtime dependency, type-safe, runtime-agnostic, calm by design.';
 ---
 
-<Base>
-  <h1>Green Tea.</h1>
+<Base title={title} description={description}>
+  <Hero />
+  <GraphNotChain />
+  <RunsEverywhere />
+  <RealTime />
+  <Batteries />
+  <SeeIt />
+  <HonestBeta />
 </Base>
