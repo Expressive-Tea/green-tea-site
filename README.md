@@ -62,16 +62,17 @@ dashboard:
 Re-run the same "Create deployment" flow from the dashboard for subsequent releases — pushes do not trigger an
 automatic build.
 
-## Placeholder links
+## Links that don't resolve yet
 
-The repository (`https://github.com/green-tea-dev/green-tea`) and npm package (`@green-tea/core`) referenced
-throughout the site (Header, Footer, Hero, blog) are **placeholders** — the GitHub org/repo and the npm package are
-not public yet. Before launch:
+Green Tea lives under the **Expressive-Tea** GitHub org — the same org as the framework it grew out of. The site
+already points there (`https://github.com/Expressive-Tea/green-tea`, in Header, Footer, Hero, and HonestBeta), but
+those targets are not public yet. Before launch, confirm each one actually resolves:
 
-- Confirm the real GitHub org/repo and update every reference in `src/` if it differs from
-  `https://github.com/green-tea-dev/green-tea`.
-- Confirm `@green-tea/core` is the published npm package name and update links if it changes.
-- Confirm `https://docs.green-tea.dev` resolves once the docs site is live.
+- The GitHub repo is public under that org.
+- `@green-tea/core` is published to npm under that name.
+- `https://docs.green-tea.dev` is live and serving the docs site.
+
+Every one of these is a visible 404 on the landing page until it's true.
 
 ## License
 
