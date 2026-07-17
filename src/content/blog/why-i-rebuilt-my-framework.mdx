@@ -26,7 +26,7 @@ That's Green Tea.
 
 The core idea is simple to say and took a long time to get right: the request pipeline is an explicit dependency graph, not a mutable middleware chain. You don't push handlers onto a stack and hope the order holds. You declare what each step needs — `@needs('user')`, say — and the framework computes the order for you. There's no chain to get wrong, because there's no chain.
 
-Real-time isn't bolted on either. It's one primitive: return an `AsyncIterable` and you have a stream, whether that stream is a WebSocket, an SSE connection, or something else entirely. One shape, one mental model, no separate package to reconcile with the rest of the framework.
+Real-time isn't bolted on either. It's one primitive — an `AsyncIterable` — for every kind of stream: a WebSocket, an SSE connection, an ndjson feed. You declare which transport with a decorator and return the iterable; one shape, one mental model, no separate package to reconcile with the rest of the framework.
 
 And because none of it depends on Express or Node's http module specifically, it runs on Node, on Deno, on Bun, and on the edge — built on web standards instead of one runtime's particular APIs. One runtime dependency, total. Not a supply chain, one dependency.
 
