@@ -1,0 +1,205 @@
+---
+// Curated from the core README's comparison table — the rows that differ most, kept honest.
+const cols = ['Express', 'Fastify', 'NestJS'];
+const rows = [
+  {
+    label: 'The pipeline is',
+    others: ['a positional chain', 'hooks + plugins', 'DI + guards/interceptors'],
+    gt: 'a graph, topologically sorted',
+  },
+  {
+    label: 'Order comes from',
+    others: ['the line you wrote it on', 'hook phase + registration', 'module wiring'],
+    gt: 'what each step needs',
+  },
+  {
+    label: 'Is req.user there?',
+    others: ['hope so', 'hope so', 'if the guard ran'],
+    gt: 'boot fails if nothing provides it',
+  },
+  {
+    label: 'See the pipeline',
+    others: ['read the code', 'read the code', 'paid Devtools'],
+    gt: 'explain / graph, free',
+  },
+  {
+    label: 'Real-time',
+    others: ['bolt on a ws/sse lib', 'a plugin', 'a separate gateway'],
+    gt: 'one AsyncIterable primitive',
+  },
+  {
+    label: 'Runs on',
+    others: ['Node', 'Node', 'Node'],
+    gt: 'Node · Deno · Bun · edge',
+  },
+  {
+    label: 'Runtime deps',
+    others: ['minimal', 'minimal', 'heavy (rxjs, …)'],
+    gt: 'reflect-metadata only',
+  },
+];
+---
+
+<section class="compare">
+  <div class="wrap">
+    <div class="compare__head">
+      <p class="kicker">How it compares</p>
+      <h2>Not another framework. A different model.</h2>
+      <p class="compare__lede">
+        Every framework here can serve <code>/users/:id</code>. The difference shows up as the app grows — more
+        dependencies, real-time, more than one machine.
+      </p>
+    </div>
+
+    <div class="compare__scroll" role="region" aria-label="Framework comparison" tabindex="0">
+      <table class="compare__table">
+        <thead>
+          <tr>
+            <th scope="col"><span class="sr-only">Capability</span></th>
+            {cols.map((c) => <th scope="col">{c}</th>)}
+            <th scope="col" class="is-gt">Green&nbsp;Tea<span class="is-gt__dot">.</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((row) => (
+              <tr>
+                <th scope="row">{row.label}</th>
+                {row.others.map((cell) => (
+                  <td>{cell}</td>
+                ))}
+                <td class="is-gt">{row.gt}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="compare__foot">
+      Same idea, said plainly: other stacks answer <em>“what does this handler depend on?”</em>, <em>“how do I push
+      data over time?”</em> and <em>“how do I call another service?”</em> with three subsystems. Green Tea answers
+      all three with one — the graph.
+    </p>
+  </div>
+</section>
+
+<style>
+  .compare {
+    /* the panel-vs-base rhythm alternates; this sits between two panels, so keep it base */
+    background: var(--base);
+  }
+
+  .compare__head {
+    max-width: 60ch;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+  }
+
+  .compare__lede {
+    color: var(--dim);
+    font-size: 1.1rem;
+    margin: 0.75rem auto 0;
+    max-width: 54ch;
+  }
+
+  .compare__lede code {
+    background: var(--panel);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+    font-size: 0.9em;
+    color: var(--ink);
+  }
+
+  /* Horizontal scroll on narrow screens without ever scrolling the page body. */
+  .compare__scroll {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid rgba(139, 148, 158, 0.18);
+  }
+
+  .compare__scroll:focus-visible {
+    outline: 2px solid var(--matcha);
+    outline-offset: 2px;
+  }
+
+  .compare__table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  .compare__table th,
+  .compare__table td {
+    padding: 0.85rem 1.1rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(139, 148, 158, 0.12);
+  }
+
+  /* row headers (the capability being compared) */
+  .compare__table tbody th {
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  /* competitor cells read quiet */
+  .compare__table tbody td {
+    color: var(--dim);
+  }
+
+  .compare__table thead th {
+    font-weight: 600;
+    color: var(--dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.02em;
+    border-bottom-color: rgba(139, 148, 158, 0.25);
+  }
+
+  /* the Green Tea column: lit, matcha, load-bearing */
+  .compare__table .is-gt {
+    background: rgba(95, 184, 138, 0.07);
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .compare__table thead .is-gt {
+    color: var(--matcha);
+    font-weight: 700;
+    font-family: var(--font-heading);
+    letter-spacing: 0;
+    font-size: 0.95rem;
+  }
+
+  .is-gt__dot {
+    color: var(--violet);
+  }
+
+  .compare__foot {
+    max-width: 62ch;
+    margin: 2rem auto 0;
+    text-align: center;
+    color: var(--dim);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .compare__foot em {
+    color: var(--ink);
+    font-style: italic;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
