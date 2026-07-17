@@ -6,6 +6,6 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://green-tea.dev',
+  site: 'https://green-tea.expressive-tea.io',
   integrations: [mdx(), sitemap()]
 });

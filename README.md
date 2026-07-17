@@ -1,6 +1,6 @@
 # Green Tea. — marketing site
 
-The public marketing site for [Green Tea](https://green-tea.dev), a zen, opinionated, type-safe graph-pipeline HTTP
+The public marketing site for [Green Tea](https://green-tea.expressive-tea.io), a zen, opinionated, type-safe graph-pipeline HTTP
 framework. Built with [Astro](https://astro.build) — the landing page, blog, and brand shell live here. The
 framework's technical docs live in a separate repository and are only linked from this site, not rebuilt here.
 
@@ -50,17 +50,19 @@ public/             — static assets (favicon, og.png, robots.txt)
 
 ## Deployment (manual — Cloudflare Pages)
 
-There is no deploy CI configured for this repo. Deploys are triggered manually from the Cloudflare Pages
-dashboard:
+The site is hosted on the **expressive-tea.io cPanel** under the subdomain `green-tea.expressive-tea.io`.
+There is no deploy CI — you build locally and upload the static output.
 
-1. Create a new Pages project and connect this repository.
-2. **Framework preset:** Astro
-3. **Build command:** `npm run build`
-4. **Build output directory:** `dist`
-5. Deploy, then attach the custom domain `green-tea.dev` under the project's Custom Domains settings.
+1. `npm run build` → static output in `dist/`.
+2. Upload the **contents** of `dist/` into the subdomain's document root
+   (e.g. `public_html/green-tea/`) via the cPanel File Manager or SFTP.
+3. The docs are a **separate build** served from `/docs` on the same subdomain — see the
+   [core repo](https://github.com/Expressive-Tea/green-tea)'s `website/` (built with `base: '/docs'`);
+   its `dist/` contents go into `public_html/green-tea/docs/`. Two independent builds, one subdomain,
+   no nested sub-subdomain.
 
-Re-run the same "Create deployment" flow from the dashboard for subsequent releases — pushes do not trigger an
-automatic build.
+The `*.expressive-tea.io` AutoSSL certificate already covers `green-tea.expressive-tea.io`; `/docs` needs
+no certificate of its own because it is a path, not a host.
 
 ## Links that don't resolve yet
 
@@ -70,7 +72,7 @@ those targets are not public yet. Before launch, confirm each one actually resol
 
 - The GitHub repo is public under that org.
 - `@green-tea/core` is published to npm under that name.
-- `https://docs.green-tea.dev` is live and serving the docs site.
+- `https://green-tea.expressive-tea.io/docs` is live and serving the docs site.
 
 Every one of these is a visible 404 on the landing page until it's true.
 
