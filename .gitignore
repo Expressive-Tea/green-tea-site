@@ -15,6 +15,10 @@ node_modules/
 .env
 .env.production
 
+# real DB credentials for the launch-list endpoint (never commit)
+subscribe.config.php
+**/subscribe.config.php
+
 # macOS
 .DS_Store
 

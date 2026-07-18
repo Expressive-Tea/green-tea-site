@@ -10,6 +10,27 @@
       ergonomics. If you're tired of maintaining someone else's foundation, come try it.
     </p>
 
+    <form class="subscribe" action="/subscribe.php" method="post">
+      <p class="subscribe__lead">Not ready yet? Get one email when 1.0 ships — nothing else.</p>
+      <div class="subscribe__row">
+        <label class="sr-only" for="sub-email">Email address</label>
+        <input
+          id="sub-email"
+          class="subscribe__input"
+          type="email"
+          name="email"
+          required
+          maxlength="254"
+          placeholder="you@company.com"
+          autocomplete="email"
+        />
+        <!-- honeypot: real people never fill this -->
+        <input class="subscribe__hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button class="btn btn--primary" type="submit">Notify me at 1.0</button>
+      </div>
+      <p class="subscribe__msg" role="status" aria-live="polite"></p>
+    </form>
+
     <div class="btn-row honest__ctas">
       <a class="btn btn--primary" href="https://green-tea.expressive-tea.io/docs" target="_blank" rel="noopener noreferrer">
         Read the docs
@@ -49,4 +70,110 @@
     font-size: 1.5rem;
     color: var(--matcha);
   }
+
+  .subscribe {
+    max-width: 30rem;
+    margin: 0 auto 2.5rem;
+  }
+
+  .subscribe__lead {
+    margin: 0 0 0.9rem;
+    color: var(--dim);
+    font-size: 0.95rem;
+  }
+
+  .subscribe__row {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  .subscribe__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.7rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid color-mix(in srgb, var(--dim) 35%, transparent);
+    background: var(--base);
+    color: var(--ink);
+    font-size: 0.95rem;
+  }
+
+  .subscribe__input:focus-visible {
+    outline: 2px solid var(--matcha);
+    outline-offset: 1px;
+  }
+
+  /* honeypot — kept in the layout for bots, off-screen for humans */
+  .subscribe__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .subscribe__msg {
+    margin: 0.75rem 0 0;
+    min-height: 1.2em;
+    font-size: 0.9rem;
+    color: var(--matcha);
+  }
+
+  .subscribe__msg[data-error] {
+    color: var(--violet);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 480px) {
+    .subscribe__row {
+      flex-direction: column;
+    }
+  }
 </style>
+
+<script>
+  const form = document.querySelector('.subscribe');
+  if (form instanceof HTMLFormElement) {
+    const msg = form.querySelector('.subscribe__msg');
+    const button = form.querySelector('button');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (button) button.disabled = true;
+      if (msg) {
+        msg.textContent = '';
+        delete msg.dataset.error;
+      }
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'X-Requested-With': 'fetch' },
+          body: new FormData(form),
+        });
+        const data = await res.json().catch(() => ({ ok: res.ok, message: '' }));
+        if (msg) {
+          msg.textContent = data.message || (data.ok ? "You're on the list." : 'Something went wrong.');
+          if (!data.ok) msg.dataset.error = 'true';
+        }
+        if (data.ok) form.reset();
+      } catch {
+        if (msg) {
+          msg.textContent = 'Network error — try again.';
+          msg.dataset.error = 'true';
+        }
+      } finally {
+        if (button) button.disabled = false;
+      }
+    });
+  }
+</script>
