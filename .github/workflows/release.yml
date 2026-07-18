@@ -1,0 +1,26 @@
+name: Release → dist.tar.gz
+
+# Production artifact. Runs on GITHUB ONLY, on a version tag. Builds the static site
+# and packages dist/ as a .tar.gz attached to the GitHub release — the cPanel deploy
+# pulls that artifact.
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  package:
+    if: ${{ github.server_url == 'https://github.com' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run build
+      - name: Package dist/
+        run: tar -czf "green-tea-site-${{ github.ref_name }}.tar.gz" -C dist .
+      - name: Attach to GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: green-tea-site-${{ github.ref_name }}.tar.gz
