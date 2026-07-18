@@ -1,0 +1,62 @@
+---
+title: "I benchmarked green-tea honestly. The network humbled it."
+description: "Every framework claims it's faster. I put green-tea on two real machines with a real network between them and watched most of that story evaporate — plus the O(n²) I found in my own code while I was there."
+pubDate: 2026-07-17
+author: "Diego Reséndez"
+tags: ["green-tea", "benchmarks", "honesty"]
+---
+
+Every framework's landing page has the same line: *mine is faster.* Usually there's a chart. Usually green bars, the author's framework on top.
+
+I could show you that chart for green-tea. On a single machine, over loopback, it sits at the top of the pack — ahead of Express, ahead of Fastify. It's true. It's also the least honest number I could put in front of you. So let me tell you what happens when you stop benchmarking against yourself.
+
+## The setup
+
+Two bare-metal machines. One runs the server. The other does nothing but generate load. They're wired together on a real gigabit network, 0.2ms apart — not a laptop talking to itself over loopback, but the shape an actual deployment has: a client, a wire, a server.
+
+## What the network does to the leaderboard
+
+The moment there's a wire between client and server, two things happen. Every number drops, and the gaps between frameworks close.
+
+| Framework | Requests/sec (two machines, 1GbE) |
+| --- | --- |
+| raw Node `http` (no framework) | 40,300 |
+| Fastify | 34,000 |
+| Nest (on Fastify) | 28,600 |
+| **green-tea** | **28,200** |
+| Express | 9,800 |
+| Nest (on Express) | 8,900 |
+
+Here's the uncomfortable part for anyone selling speed: at a realistic one-request-at-a-time load, the server sat nearly idle — single-digit CPU — while throughput flatlined. It wasn't the framework working hard. It was the round-trip. Add more connections and you only add latency; the ceiling doesn't move, because the bottleneck was never the framework. It was the network you'll actually deploy on.
+
+So the "3× faster than Express" you see in loopback charts? That's a measurement of CPU overhead in a vacuum, and real traffic rarely lives there. Over the wire, green-tea lands right in the fast group — a hair behind Fastify, tied with Nest-on-Fastify, and still comfortably ahead of the Express-based stacks. Not *the* fastest. *With* the fastest. That's the honest sentence, and it's the one I'm comfortable shipping.
+
+## The part no Node-only framework can show you
+
+green-tea runs the same app on Node, Bun, and Deno — you swap the entry point, not the code. So I ran the identical app on all three:
+
+| Runtime | Requests/sec (same green-tea app) |
+| --- | --- |
+| Deno | 44,800 |
+| Bun | 44,100 |
+| Node | 27,900 |
+
+On normal traffic, Bun and Deno serve the same green-tea app at roughly 1.6× Node's throughput — free, for changing one line. An honest footnote: Bun's server actually gets *slower* under HTTP pipelining, and I'm not going to pretend I understand why yet — but I'm not going to hide it either. Deno scaled the cleanest.
+
+Express, Fastify, and Nest can't play this game at all. They're Node-only. This is the one benchmark where green-tea isn't competing — it's alone.
+
+## While I was here, I broke my own framework
+
+Stress-testing is where you find the skeletons. I pushed a request pipeline to an absurd depth — far past anything a real app would build — and watched throughput fall off a cliff. That shouldn't happen: the graph is sorted once at boot, so running it should be cheap and linear in the number of steps.
+
+It was quadratic. One line in the step runner rebuilt the *entire* request context on every step — copy the whole thing, every time, growing as it went. Harmless at three steps. Brutal at a hundred. I changed it to merge in place instead of rebuild: one line, O(n²) → O(n), and the deep case got 2.5× faster with the full test suite still green.
+
+You will almost certainly never write a pipeline deep enough to have felt it. I fixed it anyway — because that's the job, and because I'd rather tell you I found it than have you find it.
+
+## What I'm actually claiming
+
+Not that green-tea is the fastest thing on the internet. Over a real network, "fastest framework" is mostly a rounding error — the wire has the final say, and everyone in the fast group is close. What green-tea gives you is a model that doesn't fight you, the same app on four runtimes, and someone who benchmarks it honestly enough to publish the parts that don't flatter it.
+
+Performance is table stakes, and green-tea clears the bar. The reason to use it was never the benchmark.
+
+That's the tea. 🍵
