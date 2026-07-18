@@ -24,6 +24,7 @@ const year = new Date().getFullYear();
     <div class="site-footer__brand">
       <span class="site-footer__wordmark">Green Tea<span class="site-footer__dot">.</span></span>
       <p class="site-footer__tagline">A zen, opinionated, type-safe framework.</p>
+      <p class="site-footer__byline">by the Expressive Tea Team</p>
     </div>
 
     <nav class="site-footer__columns" aria-label="Footer">
@@ -47,7 +48,7 @@ const year = new Date().getFullYear();
   </div>
 
   <div class="wrap site-footer__bottom">
-    <p>© {year} · MIT · That's the tea. 🍵</p>
+    <p>© {year} Expressive Tea Team · MIT · That's the tea. 🍵</p>
   </div>
 </footer>
 
@@ -80,6 +81,13 @@ const year = new Date().getFullYear();
     color: var(--dim);
     margin: 0.6em 0 0;
     max-width: 26ch;
+  }
+
+  .site-footer__byline {
+    color: var(--matcha);
+    margin: 0.35em 0 0;
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 
   .site-footer__columns {

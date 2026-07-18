@@ -1,0 +1,150 @@
+---
+// Beta-scoped objection handling. Answers stay honest: no benchmarks are
+// invented, and every claim here matches what the rest of the site already says.
+const items = [
+  {
+    q: 'Is Green Tea ready for production?',
+    a: `It's beta, on the RC track — the API can still shift between releases. It fits greenfield services, internal tools, and side projects where you own the deploy and can pin versions. If you need a decade of third-party middleware today, stay on Express for now.`,
+  },
+  {
+    q: 'Can I drop it into my existing Express app?',
+    a: `No — and that's the point. Green Tea replaces the middleware chain with a dependency graph, so adopting it means rewriting the pipeline, not swapping a router. It shines on a new service or a bounded rewrite, not as an incremental Express patch.`,
+  },
+  {
+    q: 'How does it perform against Express or Fastify?',
+    a: `Performance isn't the pitch — the model is — but there's a reproducible benchmark in the core repo (BENCHMARKS.md), written to be hard on us, not flattering. On a single-box harness green-tea keeps pace with Fastify and runs several times faster than Express, behind only raw Node http. Read the caveats there: it's loopback on one machine, so trust the ratios between frameworks, not the absolute numbers. The graph is topologically sorted once at boot, not per request — you don't pay for it on the hot path.`,
+  },
+  {
+    q: 'What will it add to my dependency tree?',
+    a: `One runtime dependency: reflect-metadata. ws and busboy are optional peers you install only if you use WebSockets or uploads. Validation is bring-your-own via Standard Schema (zod, valibot, or arktype), so the core stays lean.`,
+  },
+  {
+    q: 'Is mesh (multi-service) ready to use?',
+    a: `Not yet — mesh is alpha and gated behind an explicit opt-in. Build on the single-service core for now, and treat mesh as a preview, not a foundation.`,
+  },
+  {
+    q: 'What does "beta" mean for breaking changes?',
+    a: `Expect occasional breaking changes on the RC track, called out in the changelog. Pin your version and read the release notes before upgrading, and you won't be surprised.`,
+  },
+];
+---
+
+<section class="faq section--panel">
+  <div class="wrap faq__inner">
+    <div class="faq__head">
+      <p class="kicker">Straight answers</p>
+      <h2>Questions worth asking about a beta.</h2>
+    </div>
+
+    <ul class="faq__list">
+      {
+        items.map((item) => (
+          <li class="faq__item">
+            <details>
+              <summary>
+                <span>{item.q}</span>
+                <span class="faq__mark" aria-hidden="true" />
+              </summary>
+              <p>{item.a}</p>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .faq__inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .faq__head {
+    max-width: 52ch;
+    margin: 0 auto 2.5rem;
+    text-align: center;
+  }
+
+  .faq__head h2 {
+    margin-bottom: 0;
+  }
+
+  .faq__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .faq__item {
+    border: 1px solid color-mix(in srgb, var(--dim) 18%, transparent);
+    border-radius: 12px;
+    background: var(--base);
+    overflow: hidden;
+  }
+
+  .faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 1.4rem;
+    cursor: pointer;
+    color: var(--ink);
+    font-weight: 600;
+    list-style: none;
+  }
+
+  /* kill the native disclosure triangle across engines */
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__item summary:focus-visible {
+    outline: 2px solid var(--matcha);
+    outline-offset: -2px;
+    border-radius: 12px;
+  }
+
+  /* a + that rotates into an × when open — no icon asset needed */
+  .faq__mark {
+    position: relative;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+  }
+
+  .faq__mark::before,
+  .faq__mark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    background: var(--matcha);
+    transition: transform 0.2s ease;
+  }
+
+  .faq__mark::before {
+    width: 14px;
+    height: 2px;
+  }
+
+  .faq__mark::after {
+    width: 2px;
+    height: 14px;
+  }
+
+  .faq__item details[open] .faq__mark::after {
+    transform: rotate(90deg);
+  }
+
+  .faq__item details p {
+    margin: 0;
+    padding: 0 1.4rem 1.3rem;
+    color: var(--dim);
+    line-height: 1.7;
+  }
+</style>
