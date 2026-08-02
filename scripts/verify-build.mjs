@@ -184,7 +184,22 @@ for (const post of postPages) {
   );
   requireSingleMeta(post.html, post.label, 'og:type', 'article');
   const publishedTime = requireSingleMeta(post.html, post.label, 'article:published_time');
-  requireSingleMeta(post.html, post.label, 'article:author');
+  const articleAuthors = metaTags(post.html, 'property', 'article:author');
+  for (const articleAuthor of articleAuthors) {
+    const authorUrl = attribute(articleAuthor, 'content');
+    assert.ok(authorUrl?.trim(), `${post.label} article:author must not be empty`);
+    let parsedAuthorUrl;
+    assert.doesNotThrow(
+      () => {
+        parsedAuthorUrl = new URL(authorUrl);
+      },
+      `${post.label} article:author must be a valid absolute URL`,
+    );
+    assert.ok(
+      ['https:', 'http:'].includes(parsedAuthorUrl.protocol),
+      `${post.label} article:author must use HTTP or HTTPS`,
+    );
+  }
   requireValidDate(
     attribute(publishedTime, 'content'),
     `${post.label} article:published_time content`,

@@ -14,7 +14,7 @@ interface Props {
   robots?: string;
   publishedTime?: Date;
   updatedTime?: Date;
-  author?: string;
+  authorUrl?: string;
   tags?: string[];
   structuredData?: StructuredData;
 }
@@ -27,7 +27,7 @@ const {
   robots = 'index, follow',
   publishedTime,
   updatedTime,
-  author,
+  authorUrl,
   tags,
   structuredData,
 } = Astro.props;
@@ -62,7 +62,7 @@ const serializedStructuredData = structuredData
         <>
           {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
           {updatedTime && <meta property="article:modified_time" content={updatedTime.toISOString()} />}
-          {author && <meta property="article:author" content={author} />}
+          {authorUrl && <meta property="article:author" content={authorUrl} />}
           {tags?.map((tag) => <meta property="article:tag" content={tag} />)}
         </>
       )
