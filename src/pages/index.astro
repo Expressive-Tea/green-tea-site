@@ -13,9 +13,39 @@ import HonestBeta from '../components/sections/HonestBeta.astro';
 const title = 'Green Tea — Type-safe graph-pipeline framework for Node, Deno & Bun';
 const description =
   'Your API is a graph, not a middleware chain. Declare what each step needs and Green Tea computes the order — one runtime dependency, type-safe, runtime-agnostic, calm by design.';
+const canonicalURL = new URL('/', Astro.site).toString();
+const repositoryURL = 'https://github.com/Expressive-Tea/green-tea';
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${canonicalURL}#website`,
+      url: canonicalURL,
+      name: 'Green Tea',
+      description,
+    },
+    {
+      '@type': 'SoftwareApplication',
+      '@id': `${canonicalURL}#software`,
+      name: 'Green Tea',
+      description,
+      applicationCategory: 'DeveloperApplication',
+      operatingSystem: 'Cross-platform',
+      url: canonicalURL,
+      codeRepository: repositoryURL,
+      license: `${repositoryURL}/blob/main/LICENSE`,
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+    },
+  ],
+};
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} structuredData={structuredData}>
   <Hero />
   <GraphNotChain />
   <HowItCompares />
