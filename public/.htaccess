@@ -1,7 +1,7 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://green-tea.expressive-tea.io%{REQUEST_URI} [R=301,L,NE]
+  RewriteRule ^ https://green-tea.expressive-tea.io%{REQUEST_URI} [R=301,L]
 </IfModule>
 
 <IfModule mod_expires.c>
@@ -18,6 +18,10 @@
   ExpiresByType image/svg+xml "access plus 7 days"
   ExpiresByType image/webp "access plus 7 days"
   ExpiresByType image/x-icon "access plus 7 days"
+
+  <FilesMatch "\.[A-Za-z0-9_-]{8,}\.(?:avif|css|eot|gif|ico|jpe?g|js|mjs|otf|png|svg|ttf|webp|woff2?)$">
+    ExpiresActive Off
+  </FilesMatch>
 </IfModule>
 
 <IfModule mod_headers.c>
