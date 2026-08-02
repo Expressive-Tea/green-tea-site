@@ -10,7 +10,11 @@ on:
 jobs:
   package:
     if: ${{ github.server_url == 'https://github.com' }}
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
+    env:
+      ARCHIVE_NAME: green-tea-site-${{ github.ref_name }}.tar.gz
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,10 +23,10 @@ jobs:
       - run: npm ci
       - run: npm run check
       - name: Package dist/
-        run: tar -czf "green-tea-site-${{ github.ref_name }}.tar.gz" -C dist .
+        run: tar -czf "$ARCHIVE_NAME" -C dist .
       - name: Verify .htaccess in archive
-        run: tar -tzf "green-tea-site-${{ github.ref_name }}.tar.gz" | grep -Fx './.htaccess'
+        run: tar -tzf "$ARCHIVE_NAME" | grep -Fx './.htaccess'
       - name: Attach to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: green-tea-site-${{ github.ref_name }}.tar.gz
+          files: ${{ env.ARCHIVE_NAME }}
