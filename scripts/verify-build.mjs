@@ -98,8 +98,14 @@ function findNodesByType(value, expectedType, matches = []) {
 
 function requireValidDate(value, message) {
   assert.equal(typeof value, 'string', `${message} must be a string`);
-  assert.ok(value.trim(), `${message} must not be empty`);
-  assert.ok(!Number.isNaN(Date.parse(value)), `${message} must be a valid date`);
+  assert.match(
+    value,
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
+    `${message} must use ISO-8601 UTC format`,
+  );
+  const parsedDate = new Date(value);
+  assert.ok(!Number.isNaN(parsedDate.valueOf()), `${message} must be a valid date`);
+  assert.equal(parsedDate.toISOString(), value, `${message} must not normalize an impossible date`);
 }
 
 function requireSingleMeta(html, label, property, expectedContent) {
@@ -141,8 +147,17 @@ const notFound = requirePage('404.html', '404 page');
 requirePage(join('blog', 'index.html'), 'blog index');
 
 const postPages = htmlPages
-  .filter((page) => /^blog[/\\][^/\\]+[/\\]index\.html$/.test(page.label))
-  .map((page) => ({ ...page, label: `blog post ${page.label.split(/[/\\]/)[1]}` }));
+  .map((page) => ({ ...page, route: page.label.replaceAll('\\', '/') }))
+  .filter(
+    (page) =>
+      page.route.startsWith('blog/') &&
+      page.route.endsWith('/index.html') &&
+      page.route !== 'blog/index.html',
+  )
+  .map((page) => ({
+    ...page,
+    label: `blog post ${page.route.slice('blog/'.length, -'/index.html'.length)}`,
+  }));
 assert.ok(postPages.length > 0, 'Expected at least one generated blog post');
 
 const homeJsonLd = parseJsonLd(home.html, home.label);
