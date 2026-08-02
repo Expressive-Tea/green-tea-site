@@ -17,9 +17,11 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci
-      - run: npm run build
+      - run: npm run check
       - name: Package dist/
         run: tar -czf "green-tea-site-${{ github.ref_name }}.tar.gz" -C dist .
+      - name: Verify .htaccess in archive
+        run: tar -tzf "green-tea-site-${{ github.ref_name }}.tar.gz" | grep -Fx './.htaccess'
       - name: Attach to GitHub release
         uses: softprops/action-gh-release@v2
         with:
