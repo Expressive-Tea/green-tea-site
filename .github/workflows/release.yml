@@ -10,17 +10,30 @@ on:
 jobs:
   package:
     if: ${{ github.server_url == 'https://github.com' }}
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
+    env:
+      ARCHIVE_NAME: green-tea-site-${{ github.ref_name }}.tar.gz
+      RELEASE_TAG: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Validate release tag
+        run: |
+          if [[ "$RELEASE_TAG" == */* ]]; then
+            echo "Release tag must not contain '/': $RELEASE_TAG" >&2
+            exit 1
+          fi
       - run: npm ci
-      - run: npm run build
+      - run: npm run check
       - name: Package dist/
-        run: tar -czf "green-tea-site-${{ github.ref_name }}.tar.gz" -C dist .
+        run: tar -czf "$ARCHIVE_NAME" -C dist .
+      - name: Verify .htaccess in archive
+        run: tar -tzf "$ARCHIVE_NAME" | grep -Fx './.htaccess'
       - name: Attach to GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          files: green-tea-site-${{ github.ref_name }}.tar.gz
+          files: ${{ env.ARCHIVE_NAME }}

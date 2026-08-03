@@ -23,9 +23,39 @@ const dateFormat = new Intl.DateTimeFormat('en-US', {
 
 const wordCount = body.trim().split(/\s+/).filter(Boolean).length;
 const readingTime = Math.max(1, Math.round(wordCount / 200));
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).toString();
+const heroImageURL = new URL(heroImage ?? '/og.png', Astro.site).toString();
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description,
+  image: heroImageURL,
+  datePublished: pubDate.toISOString(),
+  dateModified: (updatedDate ?? pubDate).toISOString(),
+  author: {
+    '@type': 'Person',
+    name: author,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Expressive Tea Team',
+  },
+  mainEntityOfPage: canonicalURL,
+  ...(tags && tags.length > 0 ? { keywords: tags.join(', ') } : {}),
+};
 ---
 
-<Base title={`${title} — Green Tea. Blog`} description={description} image={heroImage}>
+<Base
+  title={`${title} — Green Tea. Blog`}
+  description={description}
+  image={heroImage}
+  ogType="article"
+  publishedTime={pubDate}
+  updatedTime={updatedDate ?? pubDate}
+  tags={tags}
+  structuredData={structuredData}
+>
   <article class="post section">
     <div class="wrap prose">
       <p class="post-nav"><a href="/blog/">← Back to the blog</a></p>

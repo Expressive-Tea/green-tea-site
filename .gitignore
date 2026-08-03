@@ -11,6 +11,9 @@ node_modules/
 .superpowers/
 .specs/
 
+# isolated feature worktrees
+.worktrees/
+
 # environment variables
 .env
 .env.production
