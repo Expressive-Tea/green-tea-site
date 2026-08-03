@@ -24,6 +24,7 @@ jobs:
       - name: Validate release tag
         run: npm run verify:release
       - run: npm ci
+      - run: npm audit --audit-level=moderate
       - run: npm run check
       - name: Package dist/
         run: tar -czf "$ARCHIVE_NAME" -C dist .
