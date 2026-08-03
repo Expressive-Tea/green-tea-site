@@ -5,11 +5,11 @@ const chips = ['app.listen(port)', 'serveDeno(app)', 'serveBun(app)', 'edgeHandl
 <section class="runs">
   <div class="wrap runs__inner">
     <p class="kicker">Runtime-agnostic</p>
-    <h2>Write it once. Run it everywhere.</h2>
+    <h2>Write it once. Run it on four targets.</h2>
 
     <p class="runs__body">
-      Node, Deno, Bun — and the edge. The same <code>src/</code> runs on all of them; the only line that changes is
-      how you serve it.
+      Node, Deno, Bun — and Cloudflare Workers at the edge. The same <code>src/</code> runs on all four; the only line
+      that changes is how you serve it.
     </p>
 
     <ul class="runs__chips">
@@ -18,7 +18,7 @@ const chips = ['app.listen(port)', 'serveDeno(app)', 'serveBun(app)', 'edgeHandl
 
     <p class="runs__micro">
       Built on web standards. Not hostage to a runtime's fate. <span class="runs__caveat"
-        >(The edge has no filesystem, so file-backed views and static serving stay on the server runtimes.)</span
+        >(The edge has no filesystem or mesh, so those features stay on the server runtimes.)</span
       >
     </p>
   </div>

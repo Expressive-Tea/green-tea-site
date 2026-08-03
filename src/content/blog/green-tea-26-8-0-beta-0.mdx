@@ -1,0 +1,107 @@
+---
+title: "Green Tea 26.8.0-beta.0: the router stops guessing"
+description: "Safe constrained routes, strict paths, complete HEAD and OPTIONS semantics, four runtime targets, and the limits we are deliberately leaving visible."
+pubDate: 2026-08-02
+author: "Diego Reséndez"
+tags: ["green-tea", "release", "routing", "security"]
+---
+
+A beta should not mean “we will figure out the boundaries later.” It should mean the boundaries are visible, tested,
+and still allowed to move.
+
+Green Tea `26.8.0-beta.0` closes the largest gap in its HTTP surface: the router now understands constrained
+parameters, chooses routes deterministically, handles `HEAD` and `OPTIONS` as first-class HTTP methods, and rejects
+paths that would otherwise be normalized into something the caller did not send.
+
+It also keeps an important limit in plain sight: this is still a small linear matcher, not a radix tree pretending to
+be one.
+
+## Constrained routes, with a deliberately boring regex subset
+
+Routes can now constrain a parameter to one decoded path segment:
+
+```ts
+@Get('/users/:id(\\d+)')
+findUser(@Param('id') id: string) {
+  return users.find(id);
+}
+```
+
+The constraint is anchored to the complete segment automatically. Green Tea accepts character classes, escaped
+classes such as `\d`, literal atoms, and bounded simple quantifiers. It rejects groups, alternation, lookarounds,
+backreferences, anchors, oversized expressions, and unsafe adjacent unbounded quantifiers at boot.
+
+That is intentional. This feature handles useful typed-looking route shapes without turning application startup into
+an arbitrary-regex or obvious ReDoS surface.
+
+When several routes could match, specificity is deterministic:
+
+```text
+static segment > constrained parameter > plain parameter > catch-all
+```
+
+Registration order is no longer a hidden tie-breaker. Ambiguous routes with the same method and shape fail during
+boot instead of waiting for production traffic to discover them.
+
+## A path is either the path you sent, or a 400
+
+`/path` and `/path/` remain equivalent. Repeated separators such as `/path//item` do not. Green Tea rejects repeated
+slashes and malformed percent encoding with `400 Bad Request` across Node and Fetch-based adapters, while retaining
+the configured security and CORS headers.
+
+The router will not silently collapse an ambiguous URL into a different one.
+
+## HEAD and OPTIONS are HTTP behavior, not afterthoughts
+
+This release adds explicit `@Head` and `@Options` decorators. Explicit handlers always win.
+
+Without one, a buffered `GET` can provide a `HEAD` response with the same status and headers and no body. Streaming
+GET routes do not become implicit HEAD routes. An existing path can answer `OPTIONS` automatically with `204` and a
+deterministic `Allow` header; configured CORS preflight handling still takes priority.
+
+OpenAPI follows the declarations rather than inventing operations. Constrained parameters become `{param}` path
+parameters with `schema.pattern`, while only explicitly declared HEAD and OPTIONS handlers appear as operations.
+
+## The same graph on four targets
+
+The same application code now serves HTTP, SSE, and WebSocket traffic on Node, Deno, Bun, and Cloudflare Workers.
+The entry point changes — `app.listen`, `serveDeno`, `serveBun`, or `edgeHandler` — but the route graph does not.
+
+The runtime boundaries still matter. Edge deployments have no filesystem-backed HTML or static serving, and mesh is
+limited to Node, Deno, and Bun. Deno also snapshots request and connection metadata before accepting a WebSocket
+upgrade because Deno 2.9 invalidates that metadata afterward.
+
+## The supply chain got the same treatment
+
+The core, runtime, and documentation dependency trees were audited and updated before publication. While preparing
+this release post, the public site's Astro toolchain was updated too, including patched PostCSS, SVGO, and XML parser
+transitives. The automated builds now fail on moderate-or-higher npm advisories instead of leaving the check for the
+next release.
+
+Green Tea still has one runtime dependency: `reflect-metadata`. `ws` and `busboy` remain optional peers for
+WebSockets and multipart uploads.
+
+## What this release does not build
+
+Route matching remains a linear scan. That is fine for the route tables this beta targets, but it is not the data
+structure we would choose for an enormous generated API. A radix-tree matcher remains post-beta work.
+
+Constraints are also a safe, bounded subset — not arbitrary JavaScript regular expressions. Expanding that surface
+would require proving it stays predictable and resistant to pathological input; “accept every regex” is not a beta
+checkbox.
+
+Mesh remains alpha, and the core API can still shift between beta releases. Pin the version and read the changelog
+before upgrading.
+
+## Try it
+
+```sh
+npm install @green-tea/core@beta reflect-metadata
+```
+
+Then start with the [routing guide](https://green-tea.expressive-tea.io/docs/guides/routing/) or read the complete
+[`26.8.0-beta.0` changelog](https://github.com/Expressive-Tea/green-tea/blob/main/CHANGELOG.md).
+
+The router is still small. It is simply much harder to surprise now.
+
+That's the tea. 🍵

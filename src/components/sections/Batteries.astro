@@ -1,14 +1,17 @@
 ---
 const cards = [
-  { title: 'Secure by default', body: 'Hardening headers, native TLS, CORS done right.' },
+  { title: 'Secure by default', body: 'Hardened response headers and CORS; native TLS on Node.' },
   {
     title: 'Real validation',
-    body: 'Standard Schema; bring zod, valibot, or arktype. The core stays dependency-free.',
+    body: 'Standard Schema; bring zod, valibot, or arktype. No validator dependency in core.',
   },
   { title: 'OpenAPI 3.1', body: 'Projected from the same graph. No extra decorators.' },
   { title: 'See the graph', body: 'Interactive, served by your app. Not behind a paywall.' },
   { title: 'Loud boot', body: 'A missing dependency fails at startup, not in production.' },
-  { title: 'One dependency', body: "No Express, no Inversify. Maintenance is the framework's job, not yours." },
+  {
+    title: 'One dependency',
+    body: "reflect-metadata only. No Express or Inversify maintenance chain underneath you.",
+  },
 ];
 ---
 
