@@ -33,4 +33,5 @@ jobs:
       - name: Attach to GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          prerelease: true
           files: ${{ env.ARCHIVE_NAME }}
