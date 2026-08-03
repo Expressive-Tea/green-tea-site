@@ -22,11 +22,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate release tag
-        run: |
-          if [[ "$RELEASE_TAG" == */* ]]; then
-            echo "Release tag must not contain '/': $RELEASE_TAG" >&2
-            exit 1
-          fi
+        run: npm run verify:release
       - run: npm ci
       - run: npm run check
       - name: Package dist/
