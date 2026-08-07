@@ -24,7 +24,15 @@ jobs:
       - name: Validate release tag
         run: npm run verify:release
       - run: npm ci
-      - run: npm audit --audit-level=moderate
+      # Deliberately `critical`, not `moderate`. npm audit reads a live advisory feed,
+      # so a release gated on it fails by calendar date rather than by anything the
+      # release changed — and it fails at the exact moment there is least time to judge
+      # whether a fix is safe. What ships here is built HTML, CSS and JS: Astro, js-yaml
+      # and friends are build-time tools that never reach a visitor. `critical` keeps a
+      # tripwire for the catastrophic case without breaking releases on routine noise.
+      # Moderate and up still gate every PR in ci.yml, and audit.yml files an issue on a
+      # schedule, so advisories still surface — just not as a broken release.
+      - run: npm audit --audit-level=critical
       - run: npm run check
       - name: Package dist/
         run: tar -czf "$ARCHIVE_NAME" -C dist .
