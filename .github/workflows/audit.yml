@@ -1,0 +1,57 @@
+name: Dependency audit
+
+# Weekly, on GITEA ONLY — this is maintenance, so it belongs in the internal tracker.
+#
+# This is the counterpart that makes release.yml's relaxed gate safe rather than
+# negligent. Advisories still get found; they just arrive as an issue on Monday
+# morning instead of as a failed release on a Friday afternoon. Learning about a
+# vulnerability and being unable to publish should not be the same event.
+on:
+  schedule:
+    - cron: '0 13 * * 1' # Mondays, 07:00 America/Mexico_City
+  workflow_dispatch: # so it can be run — and tested — on demand
+
+jobs:
+  audit:
+    if: ${{ github.server_url != 'https://github.com' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+
+      - name: Audit
+        id: audit
+        run: |
+          if npm audit --audit-level=moderate > audit.txt 2>&1; then
+            echo 'clean=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'clean=false' >> "$GITHUB_OUTPUT"
+          fi
+          cat audit.txt
+
+      - name: File an issue
+        if: steps.audit.outputs.clean == 'false'
+        env:
+          GT_TOKEN: ${{ github.token }}
+          API: ${{ github.server_url }}/api/v1/repos/${{ github.repository }}
+          TITLE: 'Dependency advisories: npm audit is failing'
+        run: |
+          set -eu
+          # One open issue at a time. A weekly cron must not file 52 duplicates.
+          open=$(curl -sSL -H "Authorization: token $GT_TOKEN" \
+                   "$API/issues?state=open&type=issues" \
+                 | jq --arg t "$TITLE" '[.[] | select(.title == $t)] | length')
+          if [ "$open" != "0" ]; then
+            echo "An issue is already open. Nothing to file."
+            exit 0
+          fi
+
+          body=$(printf '`npm audit --audit-level=moderate` failed on the scheduled run.\n\nThe release gate does not fail on this by design — see the comment in `release.yml`. A static site ships built HTML, not `node_modules`, so a build-time advisory does not reach a visitor. This issue is how it reaches you instead.\n\nFix it in a normal PR, on your own schedule.\n\n```\n%s\n```\n' "$(head -c 4000 audit.txt)")
+
+          jq -n --arg t "$TITLE" --arg b "$body" '{title: $t, body: $b}' \
+            | curl -sS -X POST -H "Authorization: token $GT_TOKEN" \
+                -H 'Content-Type: application/json' -d @- "$API/issues" > /dev/null
+          echo "Issue filed."
