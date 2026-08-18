@@ -11,12 +11,15 @@ import GraphMotif from '../GraphMotif.astro';
         <span class="hero__wordmark">Green Tea<span class="hero__dot">.</span></span>
       </div>
 
-      <h1>Your API is a graph, not a middleware chain.</h1>
+      <h1>Declare intent. Derive execution. Build your product.</h1>
 
       <p class="hero__subhead">
-        Green Tea is a zen, opinionated, type-safe framework: you declare what each step needs — it computes the
-        order. One runtime dependency. Runs on Node, Deno, Bun, and Cloudflare Workers.
+        A zen, opinionated, type-safe TypeScript framework that turns what your code needs into a validated
+        execution graph. Green Tea derives the order, runs only the dependencies each route actually requires,
+        and shows you exactly what it built.
       </p>
+
+      <p class="hero__promise">You focus on business logic. Green Tea maintains the foundation.</p>
 
       <div class="btn-row hero__ctas">
         <a class="btn btn--primary" href="https://green-tea.expressive-tea.io/docs" target="_blank" rel="noopener noreferrer">
@@ -30,7 +33,7 @@ import GraphMotif from '../GraphMotif.astro';
         </a>
       </div>
 
-      <p class="hero__micro">Beta · calm by design</p>
+      <p class="hero__micro">Beta · Node · Deno · Bun · Edge</p>
     </div>
 
     <GraphMotif class="hero__motif" width={460} height={400} opacity={0.55} />
@@ -87,7 +90,15 @@ import GraphMotif from '../GraphMotif.astro';
     color: var(--dim);
     font-size: 1.1rem;
     line-height: 1.7;
-    margin-bottom: 2rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .hero__promise {
+    margin: 0 0 2rem;
+    font-family: var(--font-heading);
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: var(--ink);
   }
 
   .hero__ctas {

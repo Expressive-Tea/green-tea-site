@@ -26,18 +26,34 @@ class MeController {
   <div class="wrap see-it__inner">
     <div class="see-it__head">
       <p class="kicker">See it</p>
-      <h2>The whole model, in one screen.</h2>
+      <h2>The signature is the contract.</h2>
+      <p class="see-it__lede">
+        If your handler needs it, it says so. Green Tea knows what the handler requires, which steps produce those
+        values, and what those steps need in turn — and if the graph can't satisfy that contract, it fails before
+        serving traffic. No hoping auth ran first, no archaeology through <code>app.use()</code>.
+      </p>
     </div>
 
     <div class="see-it__code">
       <Code code={snippet} lang="ts" theme="github-dark-high-contrast" />
     </div>
 
-    <p class="see-it__caption">Declare what you need. The framework figures out the order.</p>
+    <p class="see-it__caption">
+      Then make the framework show its work: <code>app.explain()</code> prints the ordered pipeline, the live graph
+      is served by your own app, and the same metadata projects into OpenAPI. Automated does not have to mean
+      invisible.
+    </p>
   </div>
 </section>
 
 <style>
+  .see-it__lede {
+    margin: 1rem 0 0;
+    max-width: 46rem;
+    color: var(--dim);
+    line-height: 1.75;
+  }
+
   .see-it__inner {
     max-width: 780px;
     margin: 0 auto;
@@ -68,10 +84,10 @@ class MeController {
   }
 
   .see-it__caption {
-    margin: 1.5rem 0 0;
-    text-align: center;
+    margin: 1.5rem auto 0;
+    max-width: 46rem;
     color: var(--dim);
-    font-style: italic;
+    line-height: 1.75;
     font-size: 0.95rem;
   }
 </style>

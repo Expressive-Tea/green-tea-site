@@ -4,12 +4,13 @@ const chips = ['app.listen(port)', 'serveDeno(app)', 'serveBun(app)', 'edgeHandl
 
 <section class="runs">
   <div class="wrap runs__inner">
-    <p class="kicker">Runtime-agnostic</p>
-    <h2>Write it once. Run it on four targets.</h2>
+    <p class="kicker">Portability</p>
+    <h2>Your application model shouldn't belong to a runtime.</h2>
 
     <p class="runs__body">
-      Node, Deno, Bun — and Cloudflare Workers at the edge. The same <code>src/</code> runs on all four; the only line
-      that changes is how you serve it.
+      The graph, routes, validation and business logic stay the same on Node, Deno, Bun and Cloudflare Workers.
+      Runtime-specific serving is isolated at the transport boundary — the only line that changes is how the
+      application is served.
     </p>
 
     <ul class="runs__chips">
@@ -17,7 +18,7 @@ const chips = ['app.listen(port)', 'serveDeno(app)', 'serveBun(app)', 'edgeHandl
     </ul>
 
     <p class="runs__micro">
-      Built on web standards. Not hostage to a runtime's fate. <span class="runs__caveat"
+      Your product code shouldn't have to care which runtime won this year. <span class="runs__caveat"
         >(The edge has no filesystem or mesh, so those features stay on the server runtimes.)</span
       >
     </p>

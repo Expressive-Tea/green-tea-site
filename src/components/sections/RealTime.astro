@@ -4,18 +4,30 @@
 <section class="realtime section--panel">
   <div class="wrap realtime__inner">
     <p class="kicker">Real-time</p>
-    <h2>One primitive for real-time.</h2>
+    <h2>One mental model. Different transports.</h2>
 
     <p class="realtime__body">
-      SSE, ndjson, or a duplex WebSocket — one primitive, an <code>AsyncIterable</code>. You declare the transport
-      with a decorator (<code>@Sse</code>, <code>@Ws</code>, <code>@Stream</code>); only that one line changes. No
-      separate gateway, no bolt-on package — and your wire contract is what you declared, never a surprise sprung by
-      a return value.
+      Your business code has one idea — values arriving over time — and in Green Tea that idea is an <code
+        >AsyncIterable</code
+      >. Declare the transport with a decorator (<code>@Sse</code>, <code>@Ws</code>, <code>@Stream</code>) and
+      return the stream; the framework handles framing, backpressure, cleanup and disconnects. Only that one line
+      changes between them, and your wire contract is what you declared — never a surprise sprung by a return value.
+    </p>
+
+    <p class="realtime__tree">
+      <code>AsyncIterable</code> → <code>SSE</code> · <code>NDJSON</code> · <code>WebSocket</code>
     </p>
   </div>
 </section>
 
 <style>
+  .realtime__tree {
+    margin: 1.2rem 0 0;
+    font-size: 0.95rem;
+    line-height: 2.1;
+    color: var(--dim);
+  }
+
   .realtime__inner {
     max-width: 60ch;
     margin: 0 auto;

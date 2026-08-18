@@ -1,16 +1,22 @@
 ---
 const cards = [
-  { title: 'Secure by default', body: 'Hardened response headers and CORS; native TLS on Node.' },
+  { title: 'Derive execution', body: 'Green Tea topologically sorts the graph. Stop maintaining execution order by hand.' },
+  {
+    title: 'Fail before traffic',
+    body: 'A missing dependency or an ambiguous route fails loudly at boot, not in production.',
+  },
   {
     title: 'Real validation',
     body: 'Standard Schema; bring zod, valibot, or arktype. No validator dependency in core.',
   },
-  { title: 'OpenAPI 3.1', body: 'Projected from the same graph. No extra decorators.' },
-  { title: 'See the graph', body: 'Interactive, served by your app. Not behind a paywall.' },
-  { title: 'Loud boot', body: 'A missing dependency fails at startup, not in production.' },
   {
-    title: 'One dependency',
-    body: "reflect-metadata only. No Express or Inversify maintenance chain underneath you.",
+    title: 'See what was derived',
+    body: 'Print the ordered pipeline, open the live graph, project the same metadata into OpenAPI 3.1.',
+  },
+  { title: 'Secure by default', body: 'Hardened response headers and CORS; native TLS on Node.' },
+  {
+    title: 'A small foundation',
+    body: 'reflect-metadata is the only runtime dependency; ws and busboy are optional peers for sockets and uploads.',
   },
 ];
 ---
@@ -18,8 +24,14 @@ const cards = [
 <section class="batteries">
   <div class="wrap">
     <div class="batteries__head">
-      <p class="kicker">Batteries, calm by design</p>
-      <h2>Serious defaults. Zero ceremony.</h2>
+      <p class="kicker">Foundation ownership</p>
+      <h2>We maintain the foundation. You maintain the product.</h2>
+      <p class="batteries__lede">
+        Routing, graph execution, validation integration, streaming, security defaults, errors, OpenAPI, lifecycle,
+        runtime adapters — the framework work your application would otherwise assemble and then keep working. The
+        goal isn't fewer dependencies for a badge; it's fewer moving parts your team has to understand, upgrade and
+        debug.
+      </p>
     </div>
 
     <ul class="batteries__grid">
@@ -44,6 +56,13 @@ const cards = [
 
   .batteries__head h2 {
     margin-bottom: 0;
+  }
+
+  .batteries__lede {
+    margin: 1rem 0 0;
+    max-width: 46rem;
+    color: var(--dim);
+    line-height: 1.75;
   }
 
   .batteries__grid {

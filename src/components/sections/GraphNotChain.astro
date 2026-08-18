@@ -7,11 +7,17 @@ import GraphMotif from '../GraphMotif.astro';
 
   <div class="wrap graph-idea__inner">
     <p class="kicker">The idea</p>
-    <h2>A graph, not a chain.</h2>
+    <h2>Declare what your code needs. Not when it should run.</h2>
 
     <p class="graph-idea__body">
-      Express-style frameworks make ordering your job — what runs here, what runs there, where you wire it. Green
-      Tea inverts it. You ask for the highest-level thing you need, and its dependencies resolve transitively.
+      A handler needs <code>user</code>. Authorization needs <code>user</code>. User comes from authentication.
+      Authentication needs a session. That is already enough information to describe execution order — so Green Tea
+      builds the graph from it, validates the wiring at boot, and runs only the slice the route requires.
+    </p>
+
+    <p class="graph-idea__chain" aria-label="session, then auth, then user, then authorization, then permissions, then handler">
+      <code>session</code> → <code>auth</code> → <code>user</code> → <code>authorization</code> →
+      <code>permissions</code> → <code>handler</code>
     </p>
 
     <ul class="graph-idea__examples">
@@ -23,9 +29,10 @@ import GraphMotif from '../GraphMotif.astro';
     </ul>
 
     <p class="graph-idea__punch">
-      This is pure composition. DI frameworks resolve a graph of <em>services</em>; Green Tea resolves your <em
-        >request pipeline</em
-      > the same way — the steps a route runs are computed from what it asks for, not the order you wrote them in.
+      You describe the application; the framework derives the pipeline. DI frameworks resolve a graph of <em
+        >services</em
+      > — Green Tea resolves your <em>request pipeline</em> the same way, from what each route asks for rather than
+      from the order you happened to write things in.
     </p>
   </div>
 </section>
@@ -94,6 +101,13 @@ import GraphMotif from '../GraphMotif.astro';
     padding: 0.15em 0.4em;
     font-size: 0.9em;
     color: var(--ink);
+  }
+
+  .graph-idea__chain {
+    margin: 0 0 1.6rem;
+    font-size: 0.95rem;
+    line-height: 2.1;
+    color: var(--dim);
   }
 
   .graph-idea__punch {
