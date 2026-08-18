@@ -1,0 +1,101 @@
+---
+title: "Green Tea 26.8.0-beta.1: you can see what it's doing"
+description: "A correlated event stream and an injectable logger, shutdown as an extension point instead of a SIGTERM handler you write yourself, and one routing behaviour change that ends a difference between runtimes."
+pubDate: 2026-08-19
+author: "Diego Reséndez"
+tags: ["green-tea", "release", "observability", "shutdown"]
+draft: true
+---
+
+The last release made the router stop guessing. This one makes the framework stop being quiet.
+
+Green Tea `26.8.0-beta.1` closes the gap a team hits in week one of a real evaluation: until now you could run an
+application on this framework and have no idea what it was doing. That was written down as a known gap. It isn't one
+any more.
+
+## Every request has an identity, and every event carries it
+
+Core emits a correlated lifecycle event stream. Each request gets an id — if a gateway already sent an
+`x-request-id`, that one is adopted rather than replaced — and every event of that request carries it, alongside the
+matched route **pattern** rather than the concrete URL, so `/users/:id` aggregates instead of exploding into a
+million distinct strings. Each step reports its own duration.
+
+```ts
+const app = createApp({ modules: [AppModule], logger: myLogger, logRequests: true });
+```
+
+The logger is any object with `debug`, `info`, `warn` and `error`. Given none, the default writes JSON, or a
+readable line when it is attached to a TTY. **Nothing in core writes to `console`** — that is enforced by a lint rule
+over the whole source tree, not by intention — so every diagnostic the framework produces is something your
+application can redirect.
+
+What is deliberately *not* here: no metrics registry, no OpenTelemetry exporter. Core keeps one runtime dependency,
+and an exporter is a package, not a framework feature. A `traceparent` header is carried through untouched for one
+to read. Green Tea ships an observability contract, not an observability integration.
+
+The cost was measured rather than assumed: about 7% of the framework's own per-request work, which is roughly 2%
+once a real socket is involved.
+
+## Shutdown is somewhere you can hook into
+
+Closing what your application opened no longer means writing `process.on('SIGTERM', …)` yourself.
+
+```ts
+@Provider({ provides: 'db' })
+class Db {
+  provide() { return { db: this.#pool }; }
+  async dispose() { await this.#pool.end(); }
+}
+```
+
+A provider that opened a pool closes it in `dispose()`. A plugin registers `onShutdown`. An application that wants
+neither passes `createApp({ hooks })`. All three land in one registry, all three are **awaited** — unlike a bus
+listener, which is fire-and-forget — and they run in reverse boot order, so a `cache` that needs `db` closes before
+the `db` does. A failure is logged and the rest still run, because one broken teardown must not leave a process up.
+
+It happens inside `close()`'s deadline, so a slow teardown cannot hold a deploy open, and
+`createApp({ teardownTimeoutMs })` reserves part of that budget when a connection has to get its chance. On the edge
+none of it applies — workerd has no shutdown to hook, and saying so is better than pretending otherwise.
+
+## One behaviour change worth reading before you upgrade
+
+**`.` and `..` in a request path now resolve instead of returning 404.** `GET /public/../admin` reaches a route
+declared as `/admin`, and `%2e` counts as a dot.
+
+This changes Node only, and it exists to end a difference rather than to be lenient. Deno, Bun and Workers resolve
+dot segments inside the `Request` constructor, before the framework sees anything — so the same bytes on the wire
+were already reaching different routes depending on where you deployed. Rejecting instead was not implementable on
+three of the four runtimes, so Node converged on resolving.
+
+If a proxy or WAF in front of your application matches on the literal path, it now sees something different from
+what the application routes. That is worth ten minutes of your attention before you deploy this.
+
+## Smaller things you may have been waiting for
+
+- **`createApp({ shutdownTimeoutMs })`** sets the shutdown deadline app-wide, for when `close()` is reached from a
+  signal handler you do not own.
+- **`limits.maxConnections`** caps concurrent sockets on Node, which was previously unbounded. Non-positive values
+  leave it unlimited.
+- **A bounded `close()` on the Deno and Bun adapters.** One difference the deadline cannot hide: Node and Bun force
+  the remainder shut, Deno cannot — there the deadline bounds how long `close()` waits, not when connections die.
+- **The documentation moved to its own repository**, so a docs fix no longer waits on a framework release.
+
+## Thank you
+
+Two people shipped code in this release.
+
+**[@YxnnXriel](https://github.com/YxnnXriel)** contributed the timeout on `app.close()`. Every shutdown deadline
+above is built on it — the app-wide option, the bounded adapters, the teardown budget. Before it, one stuck handler
+could hold a deploy open indefinitely.
+
+**[@hgshreyas](https://github.com/hgshreyas)** contributed the concurrent connection limit. Node's socket count was
+unbounded, which meant the framework had no answer at all to load it could not serve.
+
+There is more on this in a longer post, because "thanks to our contributors" is worth nothing next to a sentence
+someone can point at.
+
+## Still beta
+
+The API can still change before stable, mesh is still alpha, and the plugin ecosystem is still one person. The
+freeze belongs to the release candidate — and freezing the API before observability landed would have frozen a
+framework still missing its contract.

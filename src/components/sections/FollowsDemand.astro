@@ -1,0 +1,109 @@
+---
+const slices = [
+  {
+    route: 'GET /prices',
+    chain: ['market', 'handler'],
+    note: 'A public endpoint never asks for a user, so authentication is not in its graph slice.',
+  },
+  {
+    route: 'GET /portfolio',
+    chain: ['session', 'auth', 'user', 'portfolio', 'handler'],
+    note: 'A protected endpoint needs the user, so Green Tea follows the graph and includes it.',
+  },
+];
+---
+
+<section class="demand section--panel">
+  <div class="wrap demand__inner">
+    <div class="demand__head">
+      <p class="kicker">Route slicing</p>
+      <h2>Run what the route needs. Not everything registered around it.</h2>
+    </div>
+
+    <ul class="demand__slices">
+      {
+        slices.map((slice) => (
+          <li class="demand__slice">
+            <p class="demand__route"><code>{slice.route}</code></p>
+            <p class="demand__chain">
+              {slice.chain.map((node, i) => (
+                <>
+                  {i > 0 && <span class="demand__arrow" aria-hidden="true">→</span>}
+                  <code>{node}</code>
+                </>
+              ))}
+            </p>
+            <p class="demand__note">{slice.note}</p>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="demand__punch">
+      Routes don't inherit infrastructure just because it was registered nearby. Execution follows dependency
+      demand.
+    </p>
+  </div>
+</section>
+
+<style>
+  .demand {
+    padding-block: clamp(3rem, 8vw, 5.5rem);
+  }
+
+  .demand__head {
+    margin-bottom: 2.2rem;
+    max-width: 46rem;
+  }
+
+  .demand__head h2 {
+    margin-bottom: 0;
+  }
+
+  .demand__slices {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  }
+
+  .demand__slice {
+    padding: 1.3rem 1.4rem;
+    border: 1px solid color-mix(in srgb, var(--dim) 18%, transparent);
+    border-radius: 12px;
+  }
+
+  .demand__route {
+    margin: 0 0 0.8rem;
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+
+  .demand__chain {
+    margin: 0 0 0.9rem;
+    line-height: 2.1;
+    font-size: 0.95rem;
+  }
+
+  .demand__arrow {
+    color: var(--matcha);
+    margin-inline: 0.35rem;
+  }
+
+  .demand__note {
+    margin: 0;
+    color: var(--dim);
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  .demand__punch {
+    margin: 0;
+    max-width: 46rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+</style>

@@ -1,7 +1,9 @@
 ---
 import Base from '../layouts/Base.astro';
 import Hero from '../components/sections/Hero.astro';
+import WhoDoesTheWork from '../components/sections/WhoDoesTheWork.astro';
 import GraphNotChain from '../components/sections/GraphNotChain.astro';
+import FollowsDemand from '../components/sections/FollowsDemand.astro';
 import HowItCompares from '../components/sections/HowItCompares.astro';
 import RunsEverywhere from '../components/sections/RunsEverywhere.astro';
 import RealTime from '../components/sections/RealTime.astro';
@@ -10,9 +12,9 @@ import SeeIt from '../components/sections/SeeIt.astro';
 import Faq from '../components/sections/Faq.astro';
 import HonestBeta from '../components/sections/HonestBeta.astro';
 
-const title = 'Green Tea — Type-safe graph-pipeline framework for Node, Deno & Bun';
+const title = 'Green Tea — Dependency-driven TypeScript backend framework';
 const description =
-  'Your API is a graph, not a middleware chain. Declare what each step needs and Green Tea computes the order — one runtime dependency, type-safe, runtime-agnostic, calm by design.';
+  'Build TypeScript backends with less infrastructure in your head. Declare what your code needs and Green Tea derives, validates and executes the graph across Node, Deno, Bun and the edge.';
 const canonicalURL = new URL('/', Astro.site).toString();
 const repositoryURL = 'https://github.com/Expressive-Tea/green-tea';
 const structuredData = {
@@ -47,12 +49,14 @@ const structuredData = {
 
 <Base title={title} description={description} structuredData={structuredData}>
   <Hero />
+  <WhoDoesTheWork />
   <GraphNotChain />
-  <HowItCompares />
-  <RunsEverywhere />
+  <FollowsDemand />
+  <SeeIt />
   <RealTime />
   <Batteries />
-  <SeeIt />
+  <RunsEverywhere />
+  <HowItCompares />
   <Faq />
   <HonestBeta />
 </Base>

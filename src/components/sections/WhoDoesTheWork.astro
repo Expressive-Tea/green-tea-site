@@ -1,0 +1,121 @@
+---
+const rows = [
+  { job: 'Execution order', owner: 'Green Tea' },
+  { job: 'Dependency validation', owner: 'Green Tea' },
+  { job: 'Route-specific pipeline', owner: 'Green Tea' },
+  { job: 'Missing dependency checks', owner: 'Green Tea' },
+  { job: 'Streaming mechanics', owner: 'Green Tea' },
+  { job: 'OpenAPI projection', owner: 'Green Tea' },
+  { job: 'Secure transport defaults', owner: 'Green Tea' },
+  { job: 'Runtime serving boundary', owner: 'Green Tea' },
+];
+---
+
+<section class="who">
+  <div class="wrap who__inner">
+    <div class="who__head">
+      <p class="kicker">Ownership</p>
+      <h2>Who should do the infrastructure work?</h2>
+    </div>
+
+    <dl class="who__list">
+      {
+        rows.map((row) => (
+          <div class="who__row">
+            <dt>{row.job}</dt>
+            <dd>{row.owner}</dd>
+          </div>
+        ))
+      }
+      <div class="who__row who__row--you">
+        <dt>Business rules</dt>
+        <dd>You</dd>
+      </div>
+    </dl>
+
+    <p class="who__punch">
+      The framework should carry framework complexity. Your application should carry product complexity.
+    </p>
+  </div>
+</section>
+
+<style>
+  .who {
+    padding-block: clamp(3rem, 8vw, 5.5rem);
+  }
+
+  .who__head {
+    margin-bottom: 2.2rem;
+  }
+
+  .who__head h2 {
+    margin-bottom: 0;
+  }
+
+  .who__list {
+    margin: 0 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(2rem, 6vw, 4.5rem);
+  }
+
+  .who__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--dim) 18%, transparent);
+  }
+
+  .who__row dt {
+    margin: 0;
+    color: var(--dim);
+  }
+
+  .who__row dd {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--matcha);
+    white-space: nowrap;
+  }
+
+  .who__row--you {
+    grid-column: 1 / -1;
+    border-bottom: none;
+    border-top: 1px solid var(--matcha);
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+  }
+
+  .who__row--you dt {
+    color: var(--ink);
+    font-size: 1.05rem;
+  }
+
+  .who__row--you dd {
+    color: var(--violet);
+    font-size: 1.35rem;
+  }
+
+  .who__punch {
+    margin: 0;
+    max-width: 52rem;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  @media (max-width: 700px) {
+    .who__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .who__row {
+      font-size: 0.95rem;
+    }
+  }
+</style>

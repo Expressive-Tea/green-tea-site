@@ -1,0 +1,119 @@
+---
+title: "Trust is a feature, and I had shipped it as a TODO"
+description: "What it took to make green-tea operable: an observability contract, shutdown that actually lets go, a routing difference between runtimes I did not know I had — and two people who contributed to a project with no stars."
+pubDate: 2026-08-19
+author: "Diego Reséndez"
+tags: ["green-tea", "story", "observability", "contributors"]
+draft: true
+---
+
+There is a difference between a framework you can demo and a framework you can run, and for most of this year
+green-tea was firmly the first one.
+
+The demo was good. Declare what a route needs, get a validated execution graph, run only the slice that route
+requires. That part works and I still think it is the right idea. But when someone asked me the question every
+serious evaluation asks in week one — *what is it doing in production?* — the honest answer was: I don't know, and
+neither will you.
+
+This release is about that gap and the two others hiding behind it.
+
+## "No observability layer" was a sentence in my README for months
+
+I want to be precise about how bad that was, because I was oddly proud of having written it down.
+
+Declaring a gap is not the same as not having one. Every request that went through green-tea was anonymous. There
+was no id to correlate a slow response with the step that caused it, no per-step timing, and — worst of the three —
+the framework wrote to `console` in a handful of places, which means an application had no way to redirect its own
+framework's output. You could ship it, but you could not operate it.
+
+What shipped is a correlated event stream: an id per request, adopted from an incoming `x-request-id` when a gateway
+already made one, carried on every event, alongside the matched route *pattern* rather than the concrete URL. That
+last detail matters more than it looks — pattern cardinality is bounded, URL cardinality is not, and a metrics
+backend fed the second one falls over.
+
+The `console` calls are gone, and what replaced discipline is a lint rule over `src/**`. I do not trust myself to
+remember, and neither should you.
+
+What I did not build: a metrics registry, an OpenTelemetry exporter. Both were in the original issue and both would
+have been the second runtime dependency this project has. A `traceparent` header is carried through untouched so an
+exporter package can do that job. The framework ships the contract; the integration is somebody's package,
+possibly mine, later.
+
+I measured the cost instead of guessing at it — about 7% of the framework's own per-request work, roughly 2% once a
+real socket is in the path. I mention the number because the first three times I measured it I got three different
+wrong answers, one with the sign inverted. That is a story for another post.
+
+## Shutdown: the framework was holding things it never let go of
+
+The second gap was quieter. Green-tea would boot your providers, hand you a database pool, and then, at shutdown,
+do nothing about it. `app.close()` drained requests and closed streams — it never told your code that the process
+was going away. So every application built on it re-implemented the same `process.on('SIGTERM')` block, and every
+one of them got the ordering slightly wrong, because the order you need is the reverse of the order things booted
+in and nothing was telling you what that order was.
+
+The framework already knew it. It computes a topological order to run your graph. Using it for teardown was not a
+feature so much as an admission that the information was already sitting there.
+
+Now a provider closes its pool in `dispose()`, a plugin registers `onShutdown`, an application passes `hooks`, and
+all three land in one registry that awaits them in reverse boot order inside the existing deadline. A failure gets
+logged, and the rest still run.
+
+The part I want to flag is the one that is *not* symmetric: on the edge, none of this exists. Workerd has no
+shutdown to hook into. I could have quietly no-opped it and let the docs imply parity. It says so instead.
+
+## The bug I found by looking, and the bug CI found by not trusting me
+
+While profiling the router I noticed `GET /public/../admin` returned 404 on Node. On Deno, Bun and Workers, the same
+request reached `/admin`. The fetch-based runtimes resolve dot segments inside the `Request` constructor, before my
+code ever sees the path.
+
+So the same bytes on the wire were routing differently depending on where you deployed. A framework whose entire
+pitch is *the same application model everywhere* had a silent routing divergence, and my own cross-runtime parity
+tests could not catch it, because they go through `fetch()` — which normalizes the path before it hits the wire. The
+new tests write the request line to a socket by hand.
+
+The second one is more embarrassing and more useful. CI failed the observability work on Node 18 with
+`ReferenceError: crypto is not defined`. The global `crypto` landed in Node 19. My `engines` field promises Node 18.
+Every machine I own runs Node 20 or newer, and the other three runtimes have the global — so I had shipped code that
+made the framework unusable on its own declared floor, and *nothing I could run locally would ever have told me*.
+
+That job exists because I pinned it to the version I promise rather than the version I use. It is the single most
+valuable thing in my CI configuration.
+
+## The part I actually want to write
+
+Two people contributed code to this release. I want to be specific about why that matters, and it is not politeness.
+
+This project had no stars, no discussion threads, and no visibility. Contributing to a project in that state buys
+you nothing — no reputation, no line on a résumé anybody has heard of, no guarantee the maintainer will even reply.
+You are betting your evening on a stranger's repository on the strength of the idea alone. I have been on the other
+side of that decision and I usually decided not to.
+
+**[@YxnnXriel](https://github.com/YxnnXriel)** added a timeout to `app.close()`. On the surface: one option. In
+practice, every shutdown guarantee in this release is standing on it. The app-wide `shutdownTimeoutMs`, the bounded
+`close()` on Deno and Bun, the teardown budget that stops a slow `dispose()` from holding a deploy hostage — all of
+it is built on the deadline that pull request introduced. I did not plan that. It just turned out to be the piece
+everything else needed.
+
+**[@hgshreyas](https://github.com/hgshreyas)** capped concurrent connections on Node, which had been unbounded —
+the framework had no answer whatsoever to load it could not serve. Then followed it with the fix that makes a
+non-positive value mean *unlimited* rather than *zero*, which is what anyone typing `0` actually intends. The review
+on that one taught me something about my own architecture: the counting cannot live in the shared `app.fetch` path,
+because `app.fetch` is not on Node's `listen()` route. I did not know that cleanly until someone else's patch forced
+me to say it out loud.
+
+Both of them are still working on things. One of those pull requests is currently blocked on *me* — it needs a piece
+of plumbing that does not exist yet, and telling a contributor "your change is right, the missing part is mine" is a
+better use of a review than asking them to work around it.
+
+If you are looking for somewhere to start: unassigned issues are genuinely free, the contributing guide covers the
+branch model and the sign-off, and a maintainer will write the documentation change if you would rather not. Being
+early costs something. I would rather say thank you in a way that names what you built than in a badge.
+
+## Where this leaves the beta
+
+The graph is settled. The plugin API and `createApp`'s options still move. Mesh is still alpha. The API freeze
+belongs to the release candidate, and freezing it before this release would have frozen a framework that still could
+not tell you what it was doing.
+
+That's the tea. 🍵
