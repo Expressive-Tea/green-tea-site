@@ -80,6 +80,38 @@ what the application routes. That is worth ten minutes of your attention before 
   the remainder shut, Deno cannot — there the deadline bounds how long `close()` waits, not when connections die.
 - **The documentation moved to its own repository**, so a docs fix no longer waits on a framework release.
 
+## Mesh got a hard look, and stays alpha
+
+Mesh — resolving a dependency that physically lives on another node — is the part of green-tea
+nothing else has. It is also the part nobody has run in anger, so this release went looking for what
+that meant in practice. It found plenty.
+
+**A dropped link never came back.** There was no reconnection at all: once a teapot went away, that
+link was dead for the life of the process, so deploying a teapot forced a restart of every teacup
+depending on it and boot order became load-bearing. Links now reconnect with backoff, and a teapot
+that returns exporting *less* than the graph was validated against is refused rather than adopted —
+serving against a manifest that no longer backs your graph produces a 500 that looks like your code.
+
+**A request lost its identity at the process boundary.** The observability work above gives every
+request an id; the moment it crossed to another node, the far side opened a new one. It now carries
+across, and the teapot adopts it, so one request that spans two machines is one trace.
+
+**Exporting a database connection answered `200` with `{}`.** The wire is JSON, so a value with
+methods lost everything but its shape, arrived truthy and empty, and failed as
+`db.query is not a function` somewhere else entirely. A teapot now refuses to send one, naming what
+sat where. The rule this makes explicit was never written down: **a mesh export carries data, never
+behaviour** — export what a handle produces, not the handle.
+
+Also: the boot now waits out a teapot that is merely slow to start, and the control channel bounds
+what an unauthenticated peer can do — it had neither a handshake deadline nor a limit on the size of
+a frame it would parse.
+
+**None of that moves mesh out of alpha, and finding it is the reason.** The label is not a statement
+about the code — the protocol is versioned, the secret is compared in constant time, ambiguous routes
+fail the boot. It is a statement about how much we know, and what a day of looking added to that was
+mostly *here is another thing distributed systems do*. It stays behind `experimental: true` until
+somebody runs it with two real services and tells us what broke.
+
 ## Thank you
 
 Two people shipped code in this release.
