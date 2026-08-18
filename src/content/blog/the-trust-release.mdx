@@ -80,6 +80,48 @@ made the framework unusable on its own declared floor, and *nothing I could run 
 That job exists because I pinned it to the version I promise rather than the version I use. It is the single most
 valuable thing in my CI configuration.
 
+## Then I pointed the same question at the part I am proudest of
+
+Mesh is the thing green-tea has that nothing else does: `@needs('billing')` resolves the same whether
+billing runs in this process or on another machine. It is the idea I would put on a poster. It is
+also the part nobody has run in anger, which — after a day of finding out what "we never checked
+that" means — made it the obvious next place to look.
+
+I found eight defects in about six hundred lines. Not one had been reported; all of them came from
+going and looking.
+
+The worst is the one that answers a question I had never thought to ask: **what happens if you export
+a database connection?** The wire is JSON. A pool has methods and private state and JSON keeps
+neither, so it serialized to `{}` — and `{}` is an object. It passed every `if (db)` check, it had no
+methods, and it failed as `db.query is not a function` at a call site with no visible relationship to
+the export that caused it. Status 200. No warning at either end, at any point.
+
+That is not a bug in the transport. It is a *rule the framework never stated*: a mesh export carries
+data, never behaviour. Export what the handle produces, not the handle. Writing that sentence down is
+worth more than the guard that now enforces it, and the fact that it took me until now to write it is
+the honest part of this story.
+
+Second worst: **a dropped link never reconnected.** Not "reconnected badly" — there was no
+reconnection code at all. Deploying a teapot meant restarting every teacup that depended on it, which
+turns a routine deploy into a coordinated one and makes boot order part of your architecture. The
+framework was quietly asking for an operational discipline it never mentioned.
+
+And the one that stung, because it was fresh: **the request id I had just spent a release adding died
+at the process boundary.** Every request got an identity, every event carried it, and the moment the
+request crossed to another node the far side opened a new investigation. The one place a distributed
+trace is the entire point was the one place it did not reach.
+
+So mesh stays alpha, and I want to be precise about why, because "still alpha" usually means "not
+finished". This is not that. The protocol is versioned and peers refuse each other on mismatch. The
+secret is compared in constant time. Frames are shape-validated before they reach anything.
+Ambiguous routes fail the boot rather than picking one. That is not careless code.
+
+**The label is not about the code. It is about how much I know.** Everything above was found by
+looking, which means the supply of things to find is set by how long I look, not by how many users
+have complained. What a day added to what I know was almost entirely *here is another thing
+distributed systems do to you*. It comes out of alpha when somebody runs it with two real services,
+redeploys the teapot on a Tuesday, and tells me what broke — not when I run out of ideas.
+
 ## The part I actually want to write
 
 Two people contributed code to this release. I want to be specific about why that matters, and it is not politeness.
