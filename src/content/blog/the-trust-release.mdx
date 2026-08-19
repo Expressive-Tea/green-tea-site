@@ -4,7 +4,7 @@ description: "What it took to make green-tea operable: an observability contract
 pubDate: 2026-08-19
 author: "Diego Reséndez"
 tags: ["green-tea", "story", "observability", "contributors"]
-draft: true
+draft: false
 ---
 
 There is a difference between a framework you can demo and a framework you can run, and for most of this year
@@ -15,7 +15,7 @@ requires. That part works and I still think it is the right idea. But when someo
 serious evaluation asks in week one — *what is it doing in production?* — the honest answer was: I don't know, and
 neither will you.
 
-This release is about that gap and the two others hiding behind it.
+`26.8.0-beta.1` is about that gap and the two others hiding behind it.
 
 ## "No observability layer" was a sentence in my README for months
 
@@ -148,14 +148,26 @@ Both of them are still working on things. One of those pull requests is currentl
 of plumbing that does not exist yet, and telling a contributor "your change is right, the missing part is mine" is a
 better use of a review than asking them to work around it.
 
-If you are looking for somewhere to start: unassigned issues are genuinely free, the contributing guide covers the
-branch model and the sign-off, and a maintainer will write the documentation change if you would rather not. Being
-early costs something. I would rather say thank you in a way that names what you built than in a badge.
+If you are looking for somewhere to start, the honest answer today is that both open issues are already spoken
+for — I would rather tell you that than have you find out after cloning. So open one instead. Whatever annoyed you
+in the first ten minutes is usually a real bug, and I have yet to receive a report that was not worth having. The
+contributing guide covers the branch model and the sign-off, and if you would rather not write the documentation
+change, say so and I will. Being early costs something. I would rather say thank you in a way that names what you
+built than in a badge.
 
 ## Where this leaves the beta
 
 The graph is settled. The plugin API and `createApp`'s options still move. Mesh is still alpha. The API freeze
 belongs to the release candidate, and freezing it before this release would have frozen a framework that still could
 not tell you what it was doing.
+
+## Try it
+
+```sh
+npm install @green-tea/core@beta reflect-metadata
+```
+
+Everything above, in the form of a list rather than a story, is on the
+[`26.8.0-beta.1` release](https://github.com/Expressive-Tea/green-tea/releases/tag/v26.8.0-beta.1).
 
 That's the tea. 🍵
