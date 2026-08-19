@@ -1,7 +1,7 @@
 {
   "name": "green-tea-site",
   "type": "module",
-  "version": "26.8.1-beta.0",
+  "version": "26.8.2-beta.0",
   "engines": {
     "node": ">=22.12.0"
   },
