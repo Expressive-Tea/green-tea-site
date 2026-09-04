@@ -1,4 +1,6 @@
 ---
+import Icon from './Icon.astro';
+
 const linkColumns = [
   {
     heading: 'Learn',
@@ -10,8 +12,9 @@ const linkColumns = [
   {
     heading: 'Code',
     links: [
-      { label: 'GitHub', href: 'https://github.com/Expressive-Tea/green-tea', external: true },
-      { label: 'npm', href: 'https://www.npmjs.com/package/@green-tea/core', external: true },
+      { label: 'GitHub', href: 'https://github.com/Expressive-Tea/green-tea', external: true, icon: 'github' as const },
+      { label: 'npm', href: 'https://www.npmjs.com/package/@green-tea/core', external: true, icon: 'npm' as const },
+      { label: 'JSR', href: 'https://jsr.io/@green-tea/core', external: true, icon: 'jsr' as const },
     ],
   },
 ];
@@ -35,7 +38,13 @@ const year = new Date().getFullYear();
             <ul>
               {column.links.map((link) => (
                 <li>
-                  <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
+                  <a
+                    class={link.icon ? 'site-footer__link--mark' : undefined}
+                    href={link.href}
+                    target={link.external ? '_blank' : undefined}
+                    rel={link.external ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.icon && <Icon name={link.icon} size={15} />}
                     {link.label}
                   </a>
                 </li>
@@ -140,5 +149,13 @@ const year = new Date().getFullYear();
     .site-footer__columns {
       gap: 2rem;
     }
+  }
+
+  /* Icon beside the word, never instead of it. A footer is scanned, and a column of bare
+     glyphs makes the reader stop and decode where they were skimming. */
+  .site-footer__link--mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
   }
 </style>

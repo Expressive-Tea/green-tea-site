@@ -1,5 +1,6 @@
 ---
 import logoUrl from '../../assets/logo.svg?url';
+import Icon from '../Icon.astro';
 import GraphMotif from '../GraphMotif.astro';
 ---
 
@@ -25,11 +26,14 @@ import GraphMotif from '../GraphMotif.astro';
         <a class="btn btn--primary" href="https://green-tea.expressive-tea.io/docs" target="_blank" rel="noopener noreferrer">
           Get started
         </a>
-        <a class="btn btn--ghost" href="https://github.com/Expressive-Tea/green-tea" target="_blank" rel="noopener noreferrer">
-          GitHub
+        <a class="btn btn--ghost btn--mark" href="https://github.com/Expressive-Tea/green-tea" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+          <Icon name="github" size={20} />
         </a>
-        <a class="btn btn--ghost" href="https://www.npmjs.com/package/@green-tea/core" target="_blank" rel="noopener noreferrer">
-          npm
+        <a class="btn btn--ghost btn--mark" href="https://www.npmjs.com/package/@green-tea/core" target="_blank" rel="noopener noreferrer" aria-label="npm">
+          <Icon name="npm" size={20} />
+        </a>
+        <a class="btn btn--ghost btn--mark" href="https://jsr.io/@green-tea/core" target="_blank" rel="noopener noreferrer" aria-label="JSR">
+          <Icon name="jsr" size={20} />
         </a>
       </div>
 
@@ -99,6 +103,17 @@ import GraphMotif from '../GraphMotif.astro';
     font-size: 1.02rem;
     line-height: 1.6;
     color: var(--ink);
+  }
+
+  /* Square rather than pill: with the text gone the ghost button's horizontal padding left a
+     wide box around a small mark. Equal padding keeps the three the same size whatever the
+     glyph's width. */
+  .btn--mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem;
+    aspect-ratio: 1;
   }
 
   .hero__ctas {

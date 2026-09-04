@@ -1,11 +1,15 @@
 ---
 import logoUrl from '../assets/logo.svg?url';
+import Icon from './Icon.astro';
 
+// `icon` marks the links that become a mark on desktop. Their `label` is still the accessible
+// name — an icon-only link without one is a link a screen reader announces as its href.
 const navLinks = [
   { label: 'Docs', href: 'https://green-tea.expressive-tea.io/docs', external: true },
   { label: 'Blog', href: '/blog', external: false },
-  { label: 'GitHub', href: 'https://github.com/Expressive-Tea/green-tea', external: true },
-  { label: 'npm', href: 'https://www.npmjs.com/package/@green-tea/core', external: true },
+  { label: 'GitHub', href: 'https://github.com/Expressive-Tea/green-tea', external: true, icon: 'github' as const },
+  { label: 'npm', href: 'https://www.npmjs.com/package/@green-tea/core', external: true, icon: 'npm' as const },
+  { label: 'JSR', href: 'https://jsr.io/@green-tea/core', external: true, icon: 'jsr' as const },
 ];
 ---
 
@@ -28,8 +32,15 @@ const navLinks = [
         {
           navLinks.map((link) => (
             <li>
-              <a href={link.href} target={link.external ? '_blank' : undefined} rel={link.external ? 'noopener noreferrer' : undefined}>
-                {link.label}
+              <a
+                href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
+                aria-label={link.icon ? link.label : undefined}
+                class={link.icon ? 'site-nav__mark' : undefined}
+              >
+                {link.icon && <Icon name={link.icon} />}
+                <span class={link.icon ? 'site-nav__mark-text' : undefined}>{link.label}</span>
               </a>
             </li>
           ))
@@ -109,6 +120,23 @@ const navLinks = [
     text-decoration: none;
   }
 
+  .site-nav__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* The mark carries the meaning on desktop, where the row is short and the three logos read
+     faster than three words. The label is not removed from the DOM: it is the accessible name
+     the collapsed menu shows back. */
+  .site-nav__mark-text {
+    display: none;
+  }
+
+  .site-nav ul {
+    gap: 1.75rem;
+  }
+
   .nav-toggle {
     display: none;
   }
@@ -146,6 +174,12 @@ const navLinks = [
       align-items: flex-start;
       gap: 1rem;
       padding-block: 1rem;
+    }
+
+    /* Inside the drawer the row is vertical and there is room, so the mark stops standing in
+       for the word and stands next to it. Three unlabelled logos stacked read as decoration. */
+    .site-nav__mark-text {
+      display: inline;
     }
 
     .nav-toggle:checked ~ .site-nav {

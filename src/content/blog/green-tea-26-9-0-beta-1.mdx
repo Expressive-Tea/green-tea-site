@@ -1,0 +1,138 @@
+---
+title: "The release where I found out what I had shipped"
+description: "A second registry I announced that did not work, three ways your own code could take the process down, and the two improvements my benchmark was too small to see."
+pubDate: 2026-09-04
+author: "Diego Reséndez"
+tags: ["green-tea", "release", "performance", "reliability"]
+draft: false
+---
+
+The last release gave green-tea a way to say what it was doing. This one is mostly about what I saw once it could.
+
+`26.9.0-beta.1` is out on npm and JSR. It has one contributed feature, a handful of things you may have been
+waiting for, and four corrections that exist because looking properly turned up problems that announcing loudly had
+not.
+
+## The second registry I announced did not work
+
+In August I wrote that green-tea now publishes to JSR as well as npm. That was true. What I did not check is
+whether anyone could use it.
+
+JSR serves `src/` rather than the tsup build. My ESM build had extensionless relative imports — fine for a bundler,
+fine for Node's resolution of a built package, and not something Deno will resolve. So `jsr:@green-tea/core`
+installed and then failed on the first import. The npm package was fine the whole time, which is exactly why I did
+not notice: every test I ran, and every runtime suite in CI, went through the built artifact.
+
+It works now, and what actually fixed it was not the import rewrite. It was adding `deno publish --dry-run` to the
+release workflow, before the npm publish, so JSR's checks — slow types, module analysis, things npm never looks at —
+run while there is still something to do about them. Learning about them after npm has published leaves a version
+half-shipped, and JSR versions are permanent.
+
+I would rather tell you the registry was broken for two weeks than have you discover it in an evaluation.
+
+## Three ways your own code could take the process down
+
+The lifecycle stream from the last release is what made these findable. All three are the same shape: green-tea
+called something you gave it, and did not consider that it might throw.
+
+A `cors.origins` predicate runs per request. If yours threw — a malformed header, a regex on a value you did not
+expect — the exception escaped into the request pipeline and the process went with it. A custom `onError` had the
+same problem, and worse timing: the handler you wrote to keep a bad request from becoming an outage was itself an
+outage. It now falls back to the built-in renderer and reports the failure, rather than losing the response.
+
+The third is Node's connection cap. Reaching `maxConnections` destroyed the socket with no HTTP response and said
+nothing at all, which from the client's side is indistinguishable from a network fault. It logs a warning naming
+the dropped peer now, rate-limited to one a minute.
+
+None of these were reported. They came from reading the code with a specific question, which is the same way the
+mesh defects turned up in August. I am starting to think that is the only way I find anything.
+
+## Your app boots in its longest chain, not the sum of it
+
+Boot walked the topological order one provider at a time. Three providers that need nothing from each other, 200 ms
+of work each, took **616 ms** — the sum. They now boot concurrently and take **210 ms**, which is the longest one
+plus overhead.
+
+The framework already computed the dependency graph. Booting the independent nodes together was not a new idea so
+much as noticing that the information had been sitting there since the beginning. That is the second release in a
+row where the fix was using something the graph already knew, and I do not think that is a coincidence: I keep
+building the structure and then forgetting to ask what else it can answer.
+
+The saving scales with how wide your graph is, so a small application will see very little, and an application with
+a dozen independent providers will see most of its boot time disappear.
+
+## The two improvements my benchmark was too small to see
+
+Route matching is a linear scan. I have said so in the README for months, and three separate attempts to improve it
+measured as *nothing*.
+
+They measured as nothing because the benchmark used **six routes**. Every matcher cost scales with how many
+candidates a request walks past, and at six there is nothing to walk past. Specificity ranking, a per-candidate
+`decodeURIComponent`, settling the ranking at build time — all three were real, and all three sat below the
+resolution of the instrument I was using to judge them.
+
+`npm run bench:compare` now carries 50- and 200-route cases. The same change that measured as noise measures as
+this:
+
+| route table | Δ |
+|---|---|
+| 6 routes | nothing — every row overlaps |
+| 50 routes | +3.3%, +3.5% across two runs |
+| 200 routes | **+14.9%, +12.0%** — twelve rounds, not one crossing sample |
+
+Route ranking is now settled when the route table is built rather than recomputed per request, and security and
+CORS headers are computed once instead of twice. Neither is visible on a six-route table either.
+
+The lesson I actually take from this is not about the router. It is that I spent months believing an optimisation
+did not matter because I could not measure it, when what I could not measure was my own test.
+
+## A budget, not a cap
+
+`createApp({ limits: { maxConcurrentRequests } })` bounds how many handlers run at once, per server and per Fetch
+adapter. Over the budget a request gets `503` with `Retry-After: 1` rather than queueing behind whatever is already
+running.
+
+It counts *executing handlers*, not open connections — so a long-lived SSE stream or a WebSocket upgrade does not
+hold a slot for its lifetime, and on Node a client disconnect releases one early. A handler that never returns keeps
+its slot forever, which is the honest behaviour for a budget of this shape rather than a bug I am hiding in a
+paragraph.
+
+This one is not mine. [@hgshreyas](https://github.com/hgshreyas) wrote it, across two issues and two pull requests,
+on a project with no stars and no promise that anyone would review it. The second most useful thing in this release
+was written by someone who did not have to.
+
+## Smaller things you may have been waiting for
+
+`createApp({ handleSignals: true })` registers `SIGINT` and `SIGTERM` to close and exit. Off by default, and that is
+the design rather than caution — a library that installs process-wide handlers without being asked is a library
+that fights your process manager.
+
+`@Sse` can emit an `id:`, so an `EventSource` reconnect has a `Last-Event-ID` to resume from. Without it every
+automatic reconnect rebuilt the stream from the start and lost the gap silently, which removes most of the reason to
+choose SSE over a raw WebSocket.
+
+The extension-point *types* are exported now, not just the extension points. `TransformerFn` could not be imported,
+so a custom transformer had its shape redeclared inline or borrowed off a value with `typeof`. Checking the barrel
+for the same oversight found four more: `PluginApi`, `ScopeApi`, `ScopeNode`, `Hooks` and `TeardownFn`.
+
+And every `request:end` is now preceded by a `request:start` carrying the same `requestId`, which is what makes the
+stream something you can build a collector on rather than something you can only log.
+
+## Where this leaves the beta
+
+The graph is settled. `createApp`'s options and the plugin API still move — and the plugin API is where I am going
+next, because it is public, documented, and has exactly zero plugins written against it. Mesh is still alpha and
+still frozen.
+
+I am not freezing the API in a release whose main lesson was that I could not see what I had shipped.
+
+## Try it
+
+```sh
+npm install @green-tea/core@beta reflect-metadata
+```
+
+Everything above, as a list rather than a story, is on the
+[`26.9.0-beta.1` release](https://github.com/Expressive-Tea/green-tea/releases/tag/v26.9.0-beta.1).
+
+That's the tea. 🍵
