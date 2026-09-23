@@ -1,0 +1,128 @@
+---
+title: "The release where I took my own advice"
+description: "Two breaking changes, one keyword each, both fixing the same thing: places where green-tea asked you to remember an order. Plus the benchmark claim my README carried for two months while the benchmark said otherwise."
+pubDate: 2026-09-23
+author: "Diego Reséndez"
+tags: ["green-tea", "release", "runtimes", "benchmarks"]
+draft: false
+---
+
+The argument for green-tea is that order should not be something you have to get right. You declare what a step
+needs and what it provides, and the framework works out what runs when. No `app.use()` in the correct sequence, no
+wondering which middleware already touched the body.
+
+`26.9.0-beta.2` is out on npm and JSR. Both of its breaking changes exist because I had shipped two places where
+that argument did not apply to my own code.
+
+## The port that bound anyway
+
+If you serve on Deno or Bun, you wrote this:
+
+```ts
+const server = serveDeno(app, { port });
+```
+
+And `serveDeno` did not boot your app. It bound the port and waited, and the providers ran on the first request that
+arrived. The documented fix — on my own docs page, in a table I wrote — was to remember `await app.boot()` first.
+
+Think about what that meant if you forgot. A missing signing key is not a failed deploy: the boot result is
+memoized, rejection included, so the port opens, every request gets a 500 from the runtime, and not one of them
+reaches your `onError`. Your logs are empty because the failure never entered the framework's error path. Your
+health check passes, because something *is* listening on that port. The process looks fine and serves nothing.
+
+That is precisely the class of bug this project exists to delete, and I had put it in a core helper and then
+written a paragraph asking you to work around it. A framework that says order is not your problem should not ship
+an entry point whose correct use depends on you having read a page.
+
+They boot before they bind now. Migration is one keyword:
+
+```diff
+- const server = serveDeno(app, { port });
++ const server = await serveDeno(app, { port });
+```
+
+Both runtimes have top-level `await`, so a module that serves at import time needs nothing else, and the value you
+get back is unchanged. A provider that cannot start now fails your deploy, where you will see it.
+
+`edgeHandler` is deliberately untouched. On workerd there is no startup outside a request — there is no earlier
+moment to move the failure to, so pretending otherwise would be decoration.
+
+## The event that reported nothing
+
+The second one is smaller and the same shape. A plugin was a function, and `plugin:mounted` — the event whose
+entire job is to tell you which plugins mounted — took the name from `fn.name`. That is `""` for an arrow returned
+by a factory, which is how every plugin I have written is built. `"plugin"` for a `const`. Whatever survives a
+minifier, in production.
+
+So the observability event for plugins named none of them. A plugin is a named object now:
+
+```diff
+- const jwt = (options) => ({ scope }) => { scope.add(node); };
++ const jwt = (options) => ({
++   name: options.provides ?? 'jwt',
++   mount({ scope }) { scope.add(node); },
++ });
+```
+
+The name is the author's word rather than a compiler artifact, a failed mount reads
+`plugin "jwt" failed to mount: …` with the original error as its `cause`, and two plugins claiming the same name
+fail `createApp` instead of quietly shadowing each other.
+
+I am keeping this short on purpose. There is a plugin marketplace coming, and the interesting half of this story —
+what a plugin ecosystem needs from a contract before strangers start publishing into it — belongs in that post
+rather than this one.
+
+`app.boot()` is public now too, for when you drive `app.fetch` from a server you own. And errors are recognised by
+a brand rather than `instanceof`, so an `Unauthorized` thrown by a plugin holding its own copy of core stops
+rendering as a `500`. Mesh, still alpha, stopped pretending a provider could cross a wire. The
+[changelog](https://github.com/Expressive-Tea/green-tea/blob/main/CHANGELOG.md) has all of it.
+
+## The number I had been repeating for two months
+
+Now the part I did not enjoy writing.
+
+Since 7 July my README had said green-tea handled more requests per second than every other framework in three of
+four benchmark scenarios. `BENCHMARKS.md` — the file that sentence linked to, one click away — had stopped saying
+that at some point over the following two months. Fastify rows had moved. NestJS-on-Fastify had been added. Parity
+controls had been tightened. Nobody re-read the sentence, because a claim written into prose is not something
+anyone re-measures.
+
+I found it while regenerating the tables for this release, which is the only reason I found it at all.
+
+Then it got worse, in an interesting way. I re-ran the suite on my laptop and green-tea came out *ahead* of Fastify
+in three of four — the exact claim I was about to delete, apparently vindicated. It would have been very easy to
+keep the sentence and move on.
+
+Except green-tea had not moved. Its four numbers were within 1% of the run three weeks earlier. What had moved was
+Fastify, down 7%, and when I lined the deltas up against the order the frameworks run in, they tracked position
+rather than code: measured second, down 7%; measured last, up. A browser and the window server were taking about
+60% of the machine the whole time. The "win" was my laptop being busy.
+
+I re-ran it on an idle box instead. Coefficient of variation dropped from 4–6% to 0.1–1.3%, and the honest shape
+came back: green-tea sits behind Fastify on the JSON, routing and pipeline scenarios, ahead of it on
+POST-plus-validation, and roughly 2.8× ahead of Express. That shape reproduced on two very different CPUs. How far
+behind did not — 2–8% on one machine, 7–15% on the other — which is why the README no longer quotes a percentage
+at all and points at the table instead.
+
+There is a separate question a release has to answer, and comparing this week's numbers against a table from three
+weeks ago cannot answer it: *did these commits cost anything?* For that I run both trees on one box in one sitting,
+alternating which side goes first. Ten cases. Nine overlapped, which is the result you want — the breaking changes
+are boot-time work and none of it reached the per-request path.
+
+The tenth came out **+4.3% in green-tea's favour**, with the two sides' sample ranges not overlapping at all. A
+real-looking win. It had no mechanism — the only change that could produce it would have to show up even more
+clearly at 200 routes, and that row said +0.1% — so I re-ran that case alone with seven rounds instead of three.
+**+0.5%, overlapping.** It was chance, and it is written into `BENCHMARKS.md` as chance.
+
+I want to be clear about why I chased a result that flattered me. A benchmark is for measuring, not for producing a
+line to put on a homepage. An unexplained gain deserves the same suspicion as an unexplained loss, and usually
+means the benchmark stopped measuring what it claims — a route that started 404ing, a server that booted with the
+wrong config. A fast number that is wrong is the worst possible outcome, precisely because it looks like good news.
+
+Two of the three problems in this post were things I had written down and then stopped reading: a table I told you
+to remember, and a sentence I never re-measured. The code was not the hard part.
+
+---
+
+`npm i @green-tea/core@beta` — or `deno add jsr:@green-tea/core`. It is still beta, still one person's spare time,
+and the [docs](https://green-tea.expressive-tea.io/docs/) describe this release.
