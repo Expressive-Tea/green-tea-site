@@ -1,0 +1,110 @@
+---
+// The way into the plugin listing, which is its own build under /plugins (green-tea-marketplace).
+// The descriptions are each package's own, as the listing shows them. When a plugin is added
+// there, it does not appear here: this is a sample, and the listing is the index.
+const plugins = [
+  { name: '@green-tea/jwt', slug: 'jwt', body: 'Loads JWT signing keys at boot and publishes a sign/verify registry into the graph.' },
+  { name: '@green-tea/metrics', slug: 'metrics', body: "Counts green-tea's lifecycle events and renders them in the Prometheus text format." },
+  { name: '@green-tea/rate-limit', slug: 'rate-limit', body: 'A per-request rate limiter with a branded 429 and a swept in-memory store.' },
+];
+---
+
+<section class="plugins section--panel">
+  <div class="wrap">
+    <div class="plugins__head">
+      <p class="kicker">Plugins</p>
+      <h2>Extend it with plugins.</h2>
+      <p class="plugins__lede">
+        A plugin is one object, <code>&#123; name, mount &#125;</code>, that adds providers and steps to your graph.
+        There are three official ones so far. Each has a page with its README, its versions and the runtimes it
+        supports, and yours can sit next to them.
+      </p>
+    </div>
+
+    <ul class="plugins__grid">
+      {
+        plugins.map((plugin) => (
+          <li class="plugins__card">
+            <a href={`/plugins/${plugin.slug}/`}>
+              <h3>{plugin.name}</h3>
+              <p>{plugin.body}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="btn-row plugins__ctas">
+      <a class="btn btn--primary" href="/plugins/">Browse plugins</a>
+      <a class="btn btn--ghost" href="/plugins/#contribute">List yours</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .plugins__head {
+    max-width: 52ch;
+    margin: 0 auto 3rem;
+    text-align: center;
+  }
+
+  .plugins__head h2 {
+    margin-bottom: 0;
+  }
+
+  .plugins__lede {
+    margin: 1rem 0 0;
+    color: var(--dim);
+    line-height: 1.75;
+  }
+
+  .plugins__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .plugins__card a {
+    display: block;
+    height: 100%;
+    padding: 1.75rem;
+    background: var(--base);
+    border: 1px solid color-mix(in srgb, var(--dim) 18%, transparent);
+    border-radius: 12px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .plugins__card a:hover,
+  .plugins__card a:focus-visible {
+    border-color: var(--matcha);
+  }
+
+  .plugins__card h3 {
+    color: var(--matcha);
+    font-size: 0.98rem;
+    margin-bottom: 0.5em;
+    word-break: break-word;
+  }
+
+  .plugins__card p {
+    margin: 0;
+    color: var(--dim);
+    font-size: 0.95rem;
+    line-height: 1.65;
+  }
+
+  .plugins__ctas {
+    justify-content: center;
+    margin-top: 2.5rem;
+  }
+
+  @media (max-width: 860px) {
+    .plugins__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
