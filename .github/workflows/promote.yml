@@ -1,14 +1,16 @@
 name: Promote → GitHub
 
-# Runs on GITEA ONLY. Mirrors main, and nothing else, to the public GitHub repo.
+# Runs on GITEA ONLY. Mirrors main, and each version tag as it is created, to the public GitHub
+# repo. On GitHub a v* tag runs release.yml, which attaches the dist.tar.gz the cPanel deploy uses.
 #
-# No tags. The site deploys by hand to cPanel, so a tag on GitHub has nothing to trigger. Pushing
-# them also broke this job: `git push --tags` is refused whenever a tag points at different objects
-# on the two forges (v26.8.1-beta.0 and v26.8.2-beta.0 did), and that failed every promotion even
-# though main had already arrived.
+# A tag is pushed only on its own event, by name. The branch push used to add `git push --tags`,
+# which is refused whenever any old tag points at different objects on the two forges
+# (v26.8.1-beta.0 and v26.8.2-beta.0 do), so every promotion of main went red even though main had
+# already arrived.
 on:
   push:
     branches: [main]
+    tags: ['v*']
 
 jobs:
   push-github:
@@ -18,9 +20,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Push main to GitHub
+      - name: Push main or the new tag to GitHub
         env:
           GH_TOKEN: ${{ secrets.GH_PROMOTE_TOKEN }}
         run: |
           git remote add github "https://x-access-token:${GH_TOKEN}@github.com/Expressive-Tea/green-tea-site.git"
-          git push github "HEAD:refs/heads/main"
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            git push github "refs/tags/${{ github.ref_name }}"
+          else
+            git push github "HEAD:refs/heads/main"
+          fi
