@@ -17,8 +17,8 @@ jobs:
       ARCHIVE_NAME: green-tea-site-${{ github.ref_name }}.tar.gz
       RELEASE_TAG: ${{ github.ref_name }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: '22'
       - name: Validate release tag
@@ -39,7 +39,7 @@ jobs:
       - name: Verify .htaccess in archive
         run: tar -tzf "$ARCHIVE_NAME" | grep -Fx './.htaccess'
       - name: Attach to GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           prerelease: true
           files: ${{ env.ARCHIVE_NAME }}
