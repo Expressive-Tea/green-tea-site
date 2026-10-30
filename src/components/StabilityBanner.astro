@@ -1,0 +1,43 @@
+---
+// Site-wide notice of the API freeze and the deprecation policy (core CARD-22, D18). It sits above
+// the header on every page because it is a promise about the product, not a feature of one section.
+// The full policy lives in the docs; this states only what a reader needs before upgrading.
+const policyURL = 'https://green-tea.expressive-tea.io/docs/stability/';
+---
+
+<aside class="stability" aria-label="API stability">
+  <p class="wrap stability__text">
+    <strong>The API is frozen at RC.1.</strong> Until stable, releases are fixes only. After stable, nothing
+    is removed without at least two releases' notice.{' '}
+    <a href={policyURL}>Read the stability policy</a>
+  </p>
+</aside>
+
+<style>
+  .stability {
+    background: color-mix(in srgb, var(--matcha) 12%, var(--base));
+    border-bottom: 1px solid color-mix(in srgb, var(--matcha) 35%, transparent);
+  }
+
+  .stability__text {
+    margin: 0 auto;
+    padding-block: 0.6rem;
+    color: var(--ink);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .stability__text strong {
+    color: var(--matcha);
+  }
+
+  .stability__text a {
+    color: var(--matcha);
+    white-space: nowrap;
+  }
+
+  .stability__text a::after {
+    content: ' →';
+  }
+</style>
