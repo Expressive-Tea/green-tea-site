@@ -20,6 +20,7 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
+          check-latest: true # the runner's cached 22 can lag behind Astro's minimum
       - run: npm ci
 
       - name: Audit

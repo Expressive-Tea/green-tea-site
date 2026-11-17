@@ -18,6 +18,12 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: '22'
+          check-latest: true # the runner's cached 22 can lag behind Astro's minimum
       - run: npm ci
-      - run: npm audit --audit-level=moderate
+      # Only a critical advisory blocks, as in release.yml. The site ships built files, not
+      # node_modules; a build-time advisory with no published fix would otherwise block every PR.
+      # audit.yml still files an issue for moderate and up, and the full report prints here.
+      - run: npm audit --audit-level=critical
+      - run: npm audit
+        continue-on-error: true
       - run: npm run check

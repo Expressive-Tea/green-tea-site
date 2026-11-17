@@ -1,0 +1,53 @@
+---
+title: "Where I went, and why RC.1 took longer"
+description: "Two months of quiet: more work at my job, autistic burnout, and a record that was overdue. RC.1 is out now, and the wait was on purpose."
+pubDate: 2026-11-17
+author: "Diego Reséndez"
+tags: ["green-tea", "personal", "release"]
+---
+
+The last post here went up on September 23, with beta.2. RC.1 was supposed to follow in October.
+It came out today instead, as `26.11.0-rc.1` on npm and JSR. That gap deserves an explanation, so
+here it is.
+
+## My job needed more of me
+
+Green Tea gets built in the hours my job leaves free. This autumn the workload there went up, and
+those hours went with it. Nothing dramatic. There was just less time, and less of me left at the
+end of the day to spend on a framework.
+
+## Autistic burnout
+
+This is the harder part to write. I'm autistic, and when the load stays high for long enough I hit
+a kind of burnout that a weekend off doesn't fix. Things that are normally easy, like opening the
+editor or reading an issue, start costing more than I have. What works for me is stepping back for
+a while.
+
+Being the only developer on Green Tea makes that complicated. There's no one to hand the work to,
+so when I stop, the project stops. I decided to accept that. I don't want to build a framework that
+ships on schedule because its maintainer pushed through burnout, and I wouldn't ask anyone to
+depend on one.
+
+## The No Names Sound Machine
+
+The rest of the time went into my music project, [The No Names Sound Machine](https://thenonames.org/en/),
+which was overdue for a release. Yes, yes, there's probably some AI slop in my soup. If you
+want to listen anyway, it's on the site, or find it on Spotify, or wherever you get your music.
+
+## Why I didn't just ship it
+
+I could have pushed a tag at any point and called it a release candidate. But an RC only means
+something if the API has actually stopped moving, so the freeze had to be real before the tag
+went out.
+
+So here is what RC.1 promises. The public API of `@green-tea/core`, `/deno`, `/bun` and `/edge` is
+frozen. From now until stable, releases are fixes only: nothing gets added, removed, renamed or
+narrowed. That isn't a promise you have to take on trust. Every entry point has a committed API
+report, and CI fails when the code drifts from it. Mesh is still experimental and stays outside the
+promise. The full policy is on the [stability page](https://green-tea.expressive-tea.io/docs/stability/).
+
+## What happens now
+
+Fixes until stable, at a pace I can sustain. Development has also moved into the open: it happens
+on [GitHub](https://github.com/Expressive-Tea/green-tea) now, so issues and pull requests go there.
+If something in RC.1 breaks for you, that's the place to say so.

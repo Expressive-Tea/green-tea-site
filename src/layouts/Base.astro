@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import StabilityBanner from '../components/StabilityBanner.astro';
 import '../styles/global.css';
 
 type OpenGraphType = 'website' | 'article';
@@ -97,6 +98,7 @@ const serializedStructuredData = structuredData
       src="//gc.zgo.at/count.js"></script>
   </head>
   <body>
+    <StabilityBanner />
     <Header />
     <main>
       <slot />
