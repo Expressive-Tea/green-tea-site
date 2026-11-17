@@ -3,18 +3,18 @@
 
 <section class="honest">
   <div class="wrap honest__inner">
-    <h2>Honest: it's beta.</h2>
+    <h2>Honest: it's a release candidate.</h2>
 
     <p class="honest__body">
       Express and Fastify have a decade of ecosystem behind them; NestJS has mature enterprise tooling. Green Tea
       doesn't pretend otherwise. Choose it today because the model fits your application — explicit dependencies,
       derived execution, inspectable infrastructure, one real-time mental model, and a foundation you don't have to
-      assemble. If your team needs a large plugin catalogue today, that gap is real, and the API can still change
-      before stable.
+      assemble. If your team needs a large plugin catalogue today, that gap is real. What is no longer moving is the
+      API: it is frozen at RC.1, and until stable every release is a fix.
     </p>
 
     <form class="subscribe" action="/subscribe.php" method="post">
-      <p class="subscribe__lead">Not ready yet? Get one email when 1.0 ships — nothing else.</p>
+      <p class="subscribe__lead">Not ready yet? Get one email when the stable release ships — nothing else.</p>
       <div class="subscribe__row">
         <label class="sr-only" for="sub-email">Email address</label>
         <input
@@ -29,7 +29,7 @@
         />
         <!-- honeypot: real people never fill this -->
         <input class="subscribe__hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <button class="btn btn--primary" type="submit">Notify me at 1.0</button>
+        <button class="btn btn--primary" type="submit">Notify me at stable</button>
       </div>
       <p class="subscribe__msg" role="status" aria-live="polite"></p>
     </form>

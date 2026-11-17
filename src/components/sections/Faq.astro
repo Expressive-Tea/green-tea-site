@@ -4,7 +4,7 @@
 const items = [
   {
     q: 'Is Green Tea ready for production?',
-    a: `It's beta, on the RC track — the API can still shift between releases. It fits greenfield services, internal tools, and side projects where you own the deploy and can pin versions. If you need a decade of third-party middleware today, stay on Express for now.`,
+    a: `It's a release candidate: the API is frozen, and until stable every release is a fix. It fits greenfield services, internal tools, and side projects where you own the deploy. If you need a decade of third-party middleware today, stay on Express for now.`,
   },
   {
     q: 'Can I drop it into my existing Express app?',
@@ -12,7 +12,7 @@ const items = [
   },
   {
     q: 'How does it perform against Express or Fastify?',
-    a: `Performance isn't the pitch — the model is — but there's a reproducible benchmark in the core repo (BENCHMARKS.md), written to be hard on us, not flattering. On a single-box harness green-tea keeps pace with Fastify and runs several times faster than Express, behind only raw Node http. Read the caveats there: it's loopback on one machine, so trust the ratios between frameworks, not the absolute numbers. The graph is topologically sorted once at boot, not per request — you don't pay for it on the hot path.`,
+    a: `Performance isn't the pitch — the model is — but there's a reproducible benchmark in the core repo (BENCHMARKS.md), written to be hard on us, not flattering. On a single-box harness green-tea is level with Fastify on a plain JSON route, a few percent behind it on routing and pipelines, and behind it on validation; it runs about three times faster than Express. Read the caveats there: it's loopback on one machine, so trust the ratios between frameworks, not the absolute numbers. The graph is topologically sorted once at boot, not per request — you don't pay for it on the hot path.`,
   },
   {
     q: 'What will it add to my dependency tree?',
@@ -20,11 +20,11 @@ const items = [
   },
   {
     q: 'Is mesh (multi-service) ready to use?',
-    a: `Not yet — mesh is alpha and gated behind an explicit opt-in. Build on the single-service core for now, and treat mesh as a preview, not a foundation.`,
+    a: `Not yet. Mesh is alpha, gated behind an explicit opt-in, and outside the API freeze, so it may change in any release. What does not change is everything around it: mesh adapts to the stable API rather than altering it, so an app that does not use mesh is never affected by a mesh release. Build on the single-service core for now, and treat mesh as a preview, not a foundation.`,
   },
   {
-    q: 'What does "beta" mean for breaking changes?',
-    a: `Expect occasional breaking changes on the RC track, called out in the changelog. Pin your version and read the release notes before upgrading, and you won't be surprised.`,
+    q: 'What does the API freeze promise?',
+    a: `From RC.1 to the stable release, nothing in the public API is added, removed or renamed — releases are fixes only, and every API change would have to show up as a diff to the committed API report, which CI checks. After stable, nothing is removed without being deprecated first: at least two monthly releases of notice, a @deprecated tag naming the replacement, and a single warning in your logger. Mesh is experimental and outside the promise.`,
   },
 ];
 ---
@@ -33,7 +33,7 @@ const items = [
   <div class="wrap faq__inner">
     <div class="faq__head">
       <p class="kicker">Straight answers</p>
-      <h2>Questions worth asking about a beta.</h2>
+      <h2>Questions worth asking about a release candidate.</h2>
     </div>
 
     <ul class="faq__list">

@@ -19,7 +19,7 @@ const chips = ['app.listen(port)', 'serveDeno(app)', 'serveBun(app)', 'edgeHandl
 
     <p class="runs__micro">
       Your product code shouldn't have to care which runtime won this year. <span class="runs__caveat"
-        >(The edge has no filesystem or mesh, so those features stay on the server runtimes.)</span
+        >(The edge has no filesystem or mesh, so those features stay on the server runtimes. Native TLS is Node's; on Deno, Bun and the edge, terminate TLS in the runtime or a proxy.)</span
       >
     </p>
   </div>
