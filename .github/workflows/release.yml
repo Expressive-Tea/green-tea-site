@@ -30,7 +30,7 @@ jobs:
       # whether a fix is safe. What ships here is built HTML, CSS and JS: Astro, js-yaml
       # and friends are build-time tools that never reach a visitor. `critical` keeps a
       # tripwire for the catastrophic case without breaking releases on routine noise.
-      # Moderate and up still gate every PR in ci.yml, and audit.yml files an issue on a
+      # ci.yml gates every PR the same way, and audit.yml files an issue for moderate and up on a
       # schedule, so advisories still surface — just not as a broken release.
       - run: npm audit --audit-level=critical
       - run: npm run check
