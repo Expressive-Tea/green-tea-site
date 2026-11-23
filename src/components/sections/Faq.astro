@@ -24,7 +24,7 @@ const items = [
   },
   {
     q: 'What does the API freeze promise?',
-    a: `From RC.1 to the stable release, nothing in the public API is added, removed or renamed — releases are fixes only, and every API change would have to show up as a diff to the committed API report, which CI checks. After stable, nothing is removed without being deprecated first: at least two monthly releases of notice, a @deprecated tag naming the replacement, and a single warning in your logger. Mesh is experimental and outside the promise.`,
+    a: `From RC.1 to the stable release, nothing in the public API is added, removed or renamed — releases are fixes only, and every API change would have to show up as a diff to the committed API report, which CI checks. After stable, only the first release of a year can break: a release within a year never removes or breaks a public API, so the ^ range npm writes for you is safe to take. Nothing is removed without being deprecated first: at least two monthly releases of notice, a @deprecated tag naming the replacement, and a single warning in your logger, and then it goes only in the next first release of a year. Mesh is experimental and outside the promise.`,
   },
 ];
 ---
