@@ -1,0 +1,83 @@
+---
+title: "I audited my own release candidate, and it had nine problems"
+description: "26.11.0-rc.2 fixes nine security issues an audit found in 26.11.0-rc.1 before anything was called stable. What they were, who they reach, and how to upgrade."
+pubDate: 2026-11-23
+author: "Diego Reséndez"
+tags: ["green-tea", "security", "release"]
+---
+
+RC.1 froze green-tea's API. The next thing I did was the thing I should do before any release
+called *stable*: sit down and try to break it, from every side I could think of. Security,
+stability under load, release engineering, the mesh.
+
+It broke in nine places. `26.11.0-rc.2` fixes all of them, and this post is the list.
+
+## Who should upgrade
+
+Everyone on `26.11.0-rc.1` or any `26.x` beta. There is no patched beta: the fixes ship only in
+`26.11.0-rc.2`, so a beta user also crosses RC.1's breaking changes. The
+[What's new](/docs/whats-new/) page and the CHANGELOG list them.
+
+```bash
+npm install @green-tea/core@rc
+```
+
+On Deno, `jsr:@green-tea/core@26.11.0-rc.2`. The official plugins moved with it: `@green-tea/jwt`,
+`metrics` and `rate-limit` are 26.11.0-rc.2 on JSR and accept any core from `^26.11.0-rc.2`.
+
+## The nine advisories
+
+| Advisory | Severity | What was wrong | Reaches you if |
+|---|---|---|---|
+| [GHSA-p697-fpqx-pgf3](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-p697-fpqx-pgf3) | High | WebSocket upgrades never checked `Origin`, so another site could open a socket with your user's cookies | you have `@Ws` routes authenticated by cookie |
+| [GHSA-235j-fx64-w9p9](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-235j-fx64-w9p9) | Medium | an SSE or NDJSON source that threw sent its raw error message to the client | you stream, and errors can carry internal text |
+| [GHSA-53g8-83jp-gvw4](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-53g8-83jp-gvw4) | Medium | with `trustProxy`, `ctx.ip` was the `X-Forwarded-For` entry the client wrote | you use `trustProxy` and IP-based limits or logs |
+| [GHSA-fccm-q62j-48hr](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-fccm-q62j-48hr) | Medium | `cors: { origins: '*', credentials: true }` echoed every origin with credentials | you set that combination |
+| [GHSA-g96c-wq2v-87vc](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-g96c-wq2v-87vc) | Medium | on Node, slow-header sockets and dead WebSocket peers held connection slots far too long | your Node server faces clients without a proxy |
+| [GHSA-hjcj-hr8v-rfg4](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-hjcj-hr8v-rfg4) | Medium | `static` served dotfiles such as `/.env` | a dotfile sits in your public root |
+| [GHSA-4q43-x4fp-c273](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-4q43-x4fp-c273) | Medium | a mesh teapot ran unexported methods on an exported route pattern | you run the experimental mesh |
+| [GHSA-gm9h-7577-x57w](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-gm9h-7577-x57w) | Low | a mesh step's internal error text reached the end client | you run the experimental mesh |
+| [GHSA-g86h-3r98-qm66](https://github.com/Expressive-Tea/green-tea/security/advisories/GHSA-g86h-3r98-qm66) | Low | five small ones: template re-scan, `__proto__` form keys, inherited decorator keys, decoded `%2F` in params, `X-Forwarded-Proto` on Deno and Bun | see the advisory |
+
+## What behaves differently
+
+Most of the security fixes change nothing you would notice. Five do, and they are in the
+[CHANGELOG](https://github.com/Expressive-Tea/green-tea/blob/main/CHANGELOG.md) along with two smaller
+changes: `channel()` now buffers 1024 values per subscriber by default, and `/__ready__` no longer
+lists degraded provider names. [What's new](/docs/whats-new/) has a table of who each change
+affects and what to do.
+
+- **A cross-site WebSocket upgrade gets `403`.** An upgrade with an `Origin` must come from the same
+  host or from an origin in `cors.origins`. Clients that send no `Origin`, such as servers and CLIs,
+  are unaffected. Behind a proxy that rewrites `Host`, add your public origin to `cors.origins`.
+- **`ctx.ip` is the right-most `X-Forwarded-For` entry**, the one your proxy appended. Behind a chain
+  of proxies it is now the address the last one saw.
+- **`origins: '*'` with `credentials: true` fails `createApp`.** If you really mean every site, say it
+  as a predicate: `origins: () => true`. This one is breaking, on purpose.
+- **A failed stream ends with `Internal Server Error`** unless you threw an `HttpError`, the same as a
+  buffered route.
+- **`static` answers `404` for dotfiles**, except under `/.well-known/`.
+
+## Why now, and not after stable
+
+Because finding these is what the RC is for. The API freeze promised that nothing would move between
+RC.1 and stable except fixes, and every one of these is a fix: none adds, removes or renames an API.
+The one that refuses a configuration at boot is called out as breaking, and I would rather break a
+config that hands your users' cookies to every site than keep it working.
+
+The same audit found the other half of what "stable" means: a release that could not be staged, a
+support policy that did not exist, a version scheme that let `npm install` pull in a breaking change.
+Those are fixed too. After stable, **only the first release of a year can break**, so the `^` range
+npm writes for you is safe within a year, and the
+[support table](https://github.com/Expressive-Tea/green-tea/blob/main/SECURITY.md#supported-versions)
+says which releases get fixes, and for how long.
+
+## The mesh, on the way to beta
+
+The mesh stays experimental, but `26.11.0-rc.2` takes it most of the way to a beta: a teapot reached over
+`ws://` from another machine is refused unless you opt in, mesh on the edge fails with an error that
+says so, a remote step runs only what it needs, and there is a [runnable demo](/docs/guides/mesh/)
+of one REST API split across two processes, with the teapot killed and brought back.
+
+If you find something I missed, [SECURITY.md](https://github.com/Expressive-Tea/green-tea/blob/main/SECURITY.md)
+says how to tell me privately.
